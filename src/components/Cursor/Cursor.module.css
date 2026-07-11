@@ -1,0 +1,46 @@
+/* ── Custom Cursor ─────────────────────────────────────── */
+
+/* Hide default cursor site-wide (applied via global CSS) */
+
+.dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  margin-left: -3px;
+  margin-top: -3px;
+  background: var(--accent);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  mix-blend-mode: difference;
+}
+
+.ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 36px;
+  height: 36px;
+  border: 1.5px solid var(--accent);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  mix-blend-mode: difference;
+  transition: border-color 0.2s ease;
+}
+
+.ringHover {
+  border-color: var(--accent);
+  background: rgba(255, 60, 0, 0.08);
+  border-width: 2px;
+}
+
+/* Hide on touch / small screens */
+@media (hover: none), (max-width: 768px) {
+  .dot,
+  .ring {
+    display: none !important;
+  }
+}
