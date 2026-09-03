@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import { MdEmail } from 'react-icons/md'
 import { FiGithub, FiLinkedin } from 'react-icons/fi'
 import { personal } from '../../data/personalDetails'
+import { scrollToSection } from '../../lib/scroll'
 import styles from './Footer.module.css'
 
 export default function Footer() {
@@ -11,7 +12,11 @@ export default function Footer() {
     <footer id="contact" className={styles.footer}>
       <div className={styles.inner}>
         {/* Logo */}
-        <a href="#hero" className={styles.logo}>
+        <a
+          href="#hero"
+          className={styles.logo}
+          onClick={(e) => { e.preventDefault(); scrollToSection('hero') }}
+        >
           {personal.name.split(' ')[0]}
           <span>.</span>
         </a>

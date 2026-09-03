@@ -45,8 +45,12 @@
 }
 
 html {
-  scroll-behavior: smooth;
   overflow-x: hidden;
+}
+
+/* Lenis drives scroll smoothing in JS — native smooth-scroll would fight it */
+html.lenis, html.lenis-smooth {
+  scroll-behavior: auto !important;
 }
 
 body {

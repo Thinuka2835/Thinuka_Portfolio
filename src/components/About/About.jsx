@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { FiArrowRight } from 'react-icons/fi'
 import { personal } from '../../data/personalDetails'
+import { scrollToSection } from '../../lib/scroll'
 import styles from './About.module.css'
 
 const fadeUp = {
@@ -41,7 +42,7 @@ export default function About() {
         <motion.div variants={fadeUp}>
           <a href="#projects" className="accent-btn" onClick={(e) => {
             e.preventDefault()
-            document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' })
+            scrollToSection('projects')
           }}>
             View Projects <FiArrowRight />
           </a>

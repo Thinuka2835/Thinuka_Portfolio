@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { FiArrowUpRight } from 'react-icons/fi'
 import { personal } from '../../data/personalDetails'
+import { scrollToSection } from '../../lib/scroll'
 import styles from './Navbar.module.css'
 
 export default function Navbar() {
@@ -13,9 +14,7 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  const handleScroll = (id) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
-  }
+  const handleScroll = scrollToSection
 
   return (
     <motion.nav

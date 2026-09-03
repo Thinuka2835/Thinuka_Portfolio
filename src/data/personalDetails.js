@@ -4,7 +4,7 @@
 // ============================================================
 
 export const personal = {
-  name: "Your Name",                          // ← Your full name
+  name: "Thinuka",                             // ← Your full name
   greeting: "Hi Folks! I'm",
   titleLine1: "Full Stack",                   // ← First line of hero title
   titleHighlight: "Developer.",               // ← Highlighted word (accent color)
@@ -14,10 +14,10 @@ export const personal = {
         complex problems into clean, elegant solutions that elevate user experience.`,
   highlightedWord: "elegant",                 // ← Word in About quote to highlight
   quote: `"Building Apps, Products & Experiences that are clean and elegant."`,
-  email: "you@email.com",                     // ← Your email
-  github: "https://github.com/yourusername",  // ← Your GitHub
-  linkedin: "https://linkedin.com/in/you",    // ← Your LinkedIn
-  resumeLink: "#",                            // ← Link to resume PDF (optional)
+  email: "you@email.com",                     // ← TODO: your real email
+  github: "https://github.com/yourusername",  // ← TODO: your real GitHub URL
+  linkedin: "https://linkedin.com/in/you",    // ← TODO: your real LinkedIn URL
+  resumeLink: "#",                            // ← TODO: link to resume PDF
 };
 
 export const ticker = [
@@ -74,4 +74,11 @@ export const projects = [
     link: "https://github.com/yourusername/project3",
     image: null,
   },
+];
+
+export const stats = [
+  { value: 3, suffix: "+", label: "Years Experience" },     // ← TODO: your real numbers
+  { value: 20, suffix: "+", label: "Projects Completed" },
+  { value: 10, suffix: "+", label: "Technologies" },
+  { value: 100, suffix: "%", label: "Client Satisfaction" },
 ];

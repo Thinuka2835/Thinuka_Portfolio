@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { FiArrowUpRight } from 'react-icons/fi'
 import { personal } from '../../data/personalDetails'
+import { scrollToSection } from '../../lib/scroll'
 import styles from './Hero.module.css'
 import heroPhoto from '../../assets/user.png'
 
@@ -28,9 +29,7 @@ const photoVariants = {
   }
 }
 
-const handleScroll = (id) => {
-  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
-}
+const handleScroll = scrollToSection
 
 export default function Hero() {
   const { greeting, name, titleLine1, titleHighlight, role } = personal
@@ -94,9 +93,9 @@ export default function Hero() {
           className={styles.logo}
           onClick={(e) => { e.preventDefault(); handleScroll('hero') }}
         >
-          <span className={styles.logoIcon}>N</span>
+          <span className={styles.logoIcon}>{name.charAt(0)}</span>
           <span className={styles.logoText}>
-            wake<span className={styles.logoPlus}>+</span><br />upnikk
+            {name.split(' ')[0]}<span className={styles.logoPlus}>.</span>
           </span>
         </a>
 

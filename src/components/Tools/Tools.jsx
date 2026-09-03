@@ -1,7 +1,16 @@
 import { motion } from 'framer-motion'
-import * as SiIcons from 'react-icons/si'
+import {
+  SiReact, SiNodedotjs, SiPython, SiMongodb,
+  SiTypescript, SiFigma, SiGithub, SiDocker,
+} from 'react-icons/si'
 import { tools } from '../../data/personalDetails'
 import styles from './Tools.module.css'
+
+// Add new icons here (and to the import above) when adding tools with a new iconKey in personalDetails.js
+const ICONS = {
+  SiReact, SiNodedotjs, SiPython, SiMongodb,
+  SiTypescript, SiFigma, SiGithub, SiDocker,
+}
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -29,7 +38,7 @@ export default function Tools() {
         transition={{ staggerChildren: 0.08 }}
       >
         {tools.map((tool) => {
-          const IconComponent = SiIcons[tool.iconKey]
+          const IconComponent = ICONS[tool.iconKey]
           return (
             <motion.div
               key={tool.name}
