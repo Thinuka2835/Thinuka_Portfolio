@@ -1,15 +1,15 @@
 import { motion } from 'framer-motion'
 import {
-  SiReact, SiNodedotjs, SiPython, SiMongodb,
-  SiTypescript, SiFigma, SiGithub, SiDocker,
+  SiJira, SiConfluence, SiTrello, SiAsana,
+  SiSlack, SiNotion, SiMiro, SiClickup,
 } from 'react-icons/si'
 import { tools } from '../../data/personalDetails'
 import styles from './Tools.module.css'
 
 // Add new icons here (and to the import above) when adding tools with a new iconKey in personalDetails.js
 const ICONS = {
-  SiReact, SiNodedotjs, SiPython, SiMongodb,
-  SiTypescript, SiFigma, SiGithub, SiDocker,
+  SiJira, SiConfluence, SiTrello, SiAsana,
+  SiSlack, SiNotion, SiMiro, SiClickup,
 }
 
 const fadeUp = {
@@ -27,7 +27,7 @@ export default function Tools() {
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
       >
-        Technologies I've worked with
+        Tools & Platforms I Use
       </motion.p>
 
       <motion.div

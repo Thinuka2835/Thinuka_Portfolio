@@ -50,9 +50,16 @@ export default function Hero() {
           className={styles.heroTitle}
           custom={1} initial="hidden" animate="visible" variants={textVariants}
         >
-          <span className={styles.titleLine1}>{titleLine1} &amp;</span>
+          <span className={styles.titleLine1}>{titleLine1}</span>
           <span className={styles.titleBadge}>{titleHighlight}</span>
         </motion.h1>
+
+        <motion.p
+          className={styles.roleLine}
+          custom={2} initial="hidden" animate="visible" variants={textVariants}
+        >
+          {role}
+        </motion.p>
       </div>
 
       {/* ── Photo + Blob ── */}

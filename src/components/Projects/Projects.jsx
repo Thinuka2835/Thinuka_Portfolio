@@ -57,7 +57,7 @@ export default function Projects() {
       <div className={styles.header}>
         <h2 className={styles.heading}>
           <span className={styles.plus}>+</span>
-          Projects Showcase
+          Projects Led
           <span className={styles.plus}>+</span>
         </h2>
       </div>
@@ -76,12 +76,12 @@ export default function Projects() {
 
       <div className={styles.footer}>
         <a
-          href={personal.github}
+          href={personal.linkedin}
           target="_blank"
           rel="noopener noreferrer"
           className="accent-btn"
         >
-          View all projects <FiArrowUpRight />
+          View full profile <FiArrowUpRight />
         </a>
       </div>
     </section>

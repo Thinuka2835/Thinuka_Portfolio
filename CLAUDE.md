@@ -13,13 +13,21 @@ There is no test suite or linter configured in this project.
 
 ## Architecture
 
-Single-page React 19 + Vite site. There is no router — it's one long scrolling page assembled in [src/App.jsx](src/App.jsx) from section components, navigated via anchor-link `scrollIntoView` calls (`#hero`, `#about`, `#tools`, `#projects`, `#contact`).
+Single-page React 19 + Vite site. There is no router — it's one long scrolling page assembled in [src/App.jsx](src/App.jsx) from section components, navigated via anchor-link clicks (`#hero`, `#about`, `#tools`, `#gallery`, `#projects`, `#contact`) that scroll via [src/lib/scroll.js](src/lib/scroll.js) rather than raw `scrollIntoView`.
 
 The app is JSX, not TSX. `tsconfig.json` exists only to support editor tooling (`vite/client` types) — there's no `tsc` build step or type checking in the pipeline.
 
 ### Content is data-driven from one file
 
-All personal/site content — name, bio, contact links, skills ticker, tools list, projects — lives in [src/data/personalDetails.js](src/data/personalDetails.js) as three exports: `personal`, `ticker`, `tools`, `projects`. Components read from here rather than hardcoding copy; update this file to change site content instead of editing components. Placeholder values (email, GitHub/LinkedIn URLs, example projects) are marked with `TODO` comments and still need real content. `resumeLink` is defined but not yet wired into any component.
+All personal/site content — name, bio, contact details, skills ticker, tools list, projects, stats, gallery/certifications — lives in [src/data/personalDetails.js](src/data/personalDetails.js) as six exports: `personal`, `ticker`, `tools`, `projects`, `stats`, `gallery`. Components read from here rather than hardcoding copy; update this file to change site content instead of editing components. Placeholder values (email, phone, location, GitHub/LinkedIn URLs, example projects, certification entries) are marked with `TODO` comments and still need real content. `resumeLink` is defined but not yet wired into any component. Each `gallery` item's `image` is `null` by default (renders an icon placeholder in [Gallery.jsx](src/components/Gallery/Gallery.jsx)); set it to an imported image path to show a real certificate/photo instead.
+
+### Smooth scroll (Lenis)
+
+[src/lib/scroll.js](src/lib/scroll.js) initializes a singleton [Lenis](https://github.com/darkroomengineering/lenis) instance (called once from `App.jsx`) that drives inertia-smoothed scrolling for the whole page. Anchor-nav components call its exported `scrollToSection(id)` instead of `element.scrollIntoView(...)` directly — use the same helper for any new nav link so scrolling stays consistent. `src/index.css` disables native CSS `scroll-behavior: smooth` on `html.lenis` so it doesn't fight Lenis's JS-driven scroll.
+
+### Contact form is UI-only
+
+[src/components/Contact/Contact.jsx](src/components/Contact/Contact.jsx) has a client-validated form (name/email/message) but no backend wired up — submitting just flips local state to a success message (see the `TODO` in `handleSubmit`). This is a static site with no server, so real submission needs a third-party form endpoint (e.g. Formspree, EmailJS) wired into that handler.
 
 ### Component structure
 
