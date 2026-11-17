@@ -1,13 +1,13 @@
 .inner {
-  max-width: calc(920px + var(--gutter) * 2);
+  max-width: 62rem;
+  margin-inline: auto;
 }
 
 .eyebrow {
-  margin-bottom: 0.75rem;
-  font-family: var(--font-display);
-  font-size: 0.82rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
+  margin-bottom: 1.5rem;
+  font-size: var(--fs-eyebrow);
+  font-weight: 500;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--accent-text);
 }
@@ -15,9 +15,11 @@
 .title {
   margin-bottom: 2.5rem;
   font-family: var(--font-display);
-  font-size: clamp(2.2rem, 5.5vw, 3.6rem);
-  letter-spacing: -0.035em;
-  line-height: 1.08;
+  font-weight: 400;
+  font-size: var(--fs-display);
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  line-height: var(--lh-display);
 }
 
 .empty {
@@ -56,9 +58,9 @@
 }
 
 .itemTitle {
-  font-family: var(--font-display);
-  font-size: 1.35rem;
-  font-weight: 700;
+  font-family: var(--font-sans);
+  font-size: var(--fs-h3);
+  font-weight: 600;
   line-height: 1.3;
 }
 
@@ -71,7 +73,9 @@
   align-items: center;
   gap: 0.35rem;
   margin-top: 0.4rem;
-  font-family: var(--font-display);
-  font-weight: 600;
+  font-size: var(--fs-eyebrow);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
   color: var(--accent-text);
 }

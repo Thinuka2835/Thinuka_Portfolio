@@ -1,46 +1,68 @@
-.stats {
-  padding-top: 0;
+.heading {
+  line-height: 1;
 }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1.25rem;
-  list-style: none;
+  margin-top: 4rem;
+  border-top: 1px solid var(--line);
 }
 
-.card {
+.cell {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  padding: 1.75rem 1.5rem;
-  border-radius: var(--radius);
-  background: var(--surface);
-  border: 1px solid var(--line);
+  gap: 1rem;
+  padding: 2.5rem 0;
+  border-bottom: 1px solid var(--line);
 }
 
-.number {
+/* <dd> comes first visually (figure above label) */
+.figure {
+  order: 0;
   font-family: var(--font-display);
-  font-size: clamp(2.4rem, 4.5vw, 3.4rem);
-  font-weight: 700;
+  font-size: var(--fs-display);
   line-height: 1;
-  letter-spacing: -0.03em;
-  color: var(--accent-text);
-  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  color: var(--foreground);
+  transition: color 340ms ease-out;
+}
+
+.cell:hover .figure {
+  color: var(--accent);
 }
 
 .label {
-  font-size: 0.95rem;
-  color: var(--fg-muted);
+  order: 1;
+  max-width: 20ch;
+  font-size: var(--fs-body);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--muted);
 }
 
-@media (max-width: 899px) {
+@media (min-width: 640px) {
   .grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.9rem;
   }
+  .cell:nth-child(2n) {
+    border-left: 1px solid var(--line);
+    padding-left: 2rem;
+  }
+}
 
-  .card {
-    padding: 1.4rem 1.2rem;
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .cell {
+    padding-block: 3rem;
+  }
+  .cell:nth-child(n) {
+    border-left: 1px solid var(--line);
+    padding-left: 2rem;
+  }
+  .cell:nth-child(4n + 1) {
+    border-left: 0;
+    padding-left: 0;
   }
 }

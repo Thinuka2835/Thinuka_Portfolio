@@ -1,12 +1,11 @@
 import { useEffect, useId, useRef, useState } from 'react'
-import { motion, useInView } from 'framer-motion'
-import { FiMail, FiPhone, FiMapPin, FiSend, FiCheckCircle, FiAlertCircle } from 'react-icons/fi'
+import { FiSend, FiCheckCircle, FiAlertCircle } from 'react-icons/fi'
 import { useSiteData } from '../../lib/siteData'
 import { describeEmailError, emailConfig, isEmailConfigured, sendContactEmail } from '../../lib/emailjs'
 import { loadRecaptcha } from '../../lib/recaptcha'
 import { useTheme } from '../../lib/theme'
-import { fadeUp, revealOnView, stagger } from '../../lib/motion'
-import SectionHeader from '../SectionHeader/SectionHeader'
+import { useInViewOnce } from '../../lib/motion'
+import { Eyebrow, Reveal, RevealText } from '../Motion/Motion'
 import styles from './Contact.module.css'
 
 const EMPTY = { name: '', email: '', subject: '', message: '', website: '' }
@@ -57,14 +56,14 @@ export default function Contact() {
   const captchaRef = useRef(null)
   const captchaWidget = useRef(null)
   const sectionRef = useRef(null)
-  const inView = useInView(sectionRef, { once: true, margin: '200px' })
+  const inView = useInViewOnce(sectionRef)
   const [captchaState, setCaptchaState] = useState(emailConfig.recaptchaSiteKey ? 'loading' : 'off')
 
   useEffect(() => {
     startedAt.current = Date.now()
   }, [])
 
-  // Load reCAPTCHA only when the contact section is about to be seen
+  // Load reCAPTCHA only once the contact section is on screen
   useEffect(() => {
     if (!emailConfig.recaptchaSiteKey || !inView || captchaWidget.current !== null) return
     let cancelled = false
@@ -79,12 +78,6 @@ export default function Contact() {
       cancelled = true
     }
   }, [inView, theme])
-
-  const details = [
-    profile.email && { icon: FiMail, label: 'Email', value: profile.email, href: `mailto:${profile.email}` },
-    profile.phone && { icon: FiPhone, label: 'Phone', value: profile.phone, href: `tel:${profile.phone.replace(/[^+\d]/g, '')}` },
-    profile.location && { icon: FiMapPin, label: 'Location', value: profile.location },
-  ].filter(Boolean)
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -151,118 +144,125 @@ export default function Contact() {
   const configured = isEmailConfigured()
   const ids = Object.fromEntries(['name', 'email', 'subject', 'message'].map((k) => [k, `${uid}-${k}`]))
   const describedBy = (k) => (errors[k] ? `${ids[k]}-error` : undefined)
+  const details = [
+    profile.phone && { label: 'Phone', value: profile.phone, href: `tel:${profile.phone.replace(/[^+\d]/g, '')}` },
+    profile.location && { label: 'Location', value: profile.location },
+  ].filter(Boolean)
 
   return (
-    <section ref={sectionRef} id="contact" className="section section--alt" aria-labelledby="contact-title">
-      <div className="container">
-        <SectionHeader
-          id="contact-title"
-          eyebrow="Contact"
-          title="Let's work together"
-          intro="Have a project in mind or a team that needs a steady hand? Send a message and I'll get back to you soon."
-        />
+    <section ref={sectionRef} id="contact" className={styles.contact} aria-labelledby="contact-title">
+      <Eyebrow>Contact</Eyebrow>
+      <RevealText as="h2" id="contact-title" text="Let's work together" className={`heading ${styles.heading}`} />
+      <Reveal as="p" className={styles.intro} dur={520}>
+        Have a project in mind or a team that needs a steady hand? Send a message and I'll get back to you soon.
+      </Reveal>
 
-        <motion.div className={styles.grid} variants={stagger(0.12)} {...revealOnView}>
-          <motion.div className={styles.aside} variants={fadeUp}>
-            {profile.availability && (
-              <p className={styles.badge}>
-                <span className={styles.badgeDot} aria-hidden="true" />
-                {profile.availability}
-              </p>
-            )}
-            {details.length > 0 && (
-              <ul className={styles.details}>
-                {details.map(({ icon: Icon, label, value, href }) => (
-                  <li key={label} className={styles.detailItem}>
-                    <span className={styles.detailIcon}><Icon aria-hidden="true" /></span>
-                    <span>
-                      <span className={styles.detailLabel}>{label}</span>
-                      {href ? <a href={href} className={styles.detailValue}>{value}</a> : <span className={styles.detailValue}>{value}</span>}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </motion.div>
+      {profile.email && (
+        <Reveal delay={120} dur={520}>
+          <a href={`mailto:${profile.email}`} className={styles.email}>
+            <span>{profile.email}</span>
+            <span className={styles.arrow} aria-hidden="true">↗</span>
+          </a>
+        </Reveal>
+      )}
 
-          <motion.div className={styles.formWrap} variants={fadeUp}>
-            <div aria-live="polite" aria-atomic="true">
-              {status === 'sent' && (
-                <div className={styles.result}>
-                  <FiCheckCircle className={styles.resultIcon} aria-hidden="true" />
-                  <p className={styles.resultTitle}>Thanks, {firstName}!</p>
-                  <p className={styles.resultText}>Your message was sent. I’ll reply to {form.email.trim()} as soon as I can.</p>
-                  <button type="button" className="btn btn--ghost" onClick={reset}>
-                    Write another message
-                  </button>
+      <div className={styles.grid}>
+        <Reveal className={styles.aside} dur={560}>
+          {profile.availability && (
+            <p className={styles.badge}>
+              <span className={styles.badgeDot} aria-hidden="true" />
+              {profile.availability}
+            </p>
+          )}
+          {details.length > 0 && (
+            <dl className={styles.details}>
+              {details.map(({ label, value, href }) => (
+                <div key={label} className={styles.detail}>
+                  <dt className="label">{label}</dt>
+                  <dd>{href ? <a href={href}>{value}</a> : value}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
+        </Reveal>
+
+        <Reveal className={styles.formWrap} delay={110} dur={560}>
+          <div aria-live="polite" aria-atomic="true">
+            {status === 'sent' && (
+              <div className={styles.result}>
+                <FiCheckCircle className={styles.resultIcon} aria-hidden="true" />
+                <p className={styles.resultTitle}>Thanks, {firstName}!</p>
+                <p className={styles.resultText}>Your message was sent. I’ll reply to {form.email.trim()} as soon as I can.</p>
+                <button type="button" className="btn btn--ghost" onClick={reset}>
+                  Write another message
+                </button>
+              </div>
+            )}
+          </div>
+
+          {status !== 'sent' && (
+            <form ref={formRef} className={styles.form} onSubmit={handleSubmit} noValidate aria-describedby={!configured ? `${uid}-unconfigured` : undefined}>
+              {!configured && (
+                <p id={`${uid}-unconfigured`} className={styles.notice}>
+                  <FiAlertCircle aria-hidden="true" />
+                  <span>
+                    The contact form isn’t connected yet.
+                    {profile.email && (
+                      <> Please email <a href={`mailto:${profile.email}`}>{profile.email}</a> directly.</>
+                    )}
+                  </span>
+                </p>
+              )}
+
+              <div className={styles.row}>
+                <Field id={ids.name} label="Name" error={errors.name}>
+                  <input id={ids.name} name="name" type="text" autoComplete="name" maxLength={LIMITS.name} value={form.name} onChange={handleChange} aria-invalid={Boolean(errors.name)} aria-describedby={describedBy('name')} required />
+                </Field>
+                <Field id={ids.email} label="Email" error={errors.email}>
+                  <input id={ids.email} name="email" type="email" autoComplete="email" inputMode="email" maxLength={LIMITS.email} value={form.email} onChange={handleChange} aria-invalid={Boolean(errors.email)} aria-describedby={describedBy('email')} required />
+                </Field>
+              </div>
+              <Field id={ids.subject} label="Subject" error={errors.subject}>
+                <input id={ids.subject} name="subject" type="text" maxLength={LIMITS.subject} value={form.subject} onChange={handleChange} aria-invalid={Boolean(errors.subject)} aria-describedby={describedBy('subject')} required />
+              </Field>
+              <Field id={ids.message} label="Message" error={errors.message}>
+                <textarea id={ids.message} name="message" rows={5} maxLength={LIMITS.message} value={form.message} onChange={handleChange} aria-invalid={Boolean(errors.message)} aria-describedby={describedBy('message')} data-lenis-prevent required />
+              </Field>
+
+              {/* Honeypot: invisible to people, tempting to bots */}
+              <div className={styles.honeypot} aria-hidden="true">
+                <label htmlFor={`${uid}-website`}>Website</label>
+                <input id={`${uid}-website`} name="website" type="text" tabIndex={-1} autoComplete="off" value={form.website} onChange={handleChange} />
+              </div>
+
+              {captchaState !== 'off' && (
+                <div className={styles.captcha}>
+                  <div ref={captchaRef} />
+                  {captchaState === 'failed' && <p className={styles.fieldError}>The CAPTCHA couldn’t load. Check your connection or disable blockers for this site.</p>}
+                  {errors.captcha && <p className={styles.fieldError} role="alert">{errors.captcha}</p>}
                 </div>
               )}
-            </div>
 
-            {status !== 'sent' && (
-              <form ref={formRef} className={styles.form} onSubmit={handleSubmit} noValidate aria-describedby={!configured ? `${uid}-unconfigured` : undefined}>
-                {!configured && (
-                  <p id={`${uid}-unconfigured`} className={styles.notice}>
-                    <FiAlertCircle aria-hidden="true" />
-                    <span>
-                      The contact form isn’t connected yet.
-                      {profile.email && (
-                        <> Please email <a href={`mailto:${profile.email}`}>{profile.email}</a> directly.</>
-                      )}
-                    </span>
-                  </p>
-                )}
+              {status === 'error' && (
+                <p className={styles.error} role="alert">
+                  <FiAlertCircle aria-hidden="true" />
+                  <span>
+                    {errorMessage}{' '}
+                    {profile.email ? (
+                      <>You can also email <a href={`mailto:${profile.email}`}>{profile.email}</a>.</>
+                    ) : (
+                      'Please try again later.'
+                    )}
+                  </span>
+                </p>
+              )}
 
-                <div className={styles.row}>
-                  <Field id={ids.name} label="Name" error={errors.name}>
-                    <input id={ids.name} name="name" type="text" autoComplete="name" maxLength={LIMITS.name} value={form.name} onChange={handleChange} aria-invalid={Boolean(errors.name)} aria-describedby={describedBy('name')} required />
-                  </Field>
-                  <Field id={ids.email} label="Email" error={errors.email}>
-                    <input id={ids.email} name="email" type="email" autoComplete="email" inputMode="email" maxLength={LIMITS.email} value={form.email} onChange={handleChange} aria-invalid={Boolean(errors.email)} aria-describedby={describedBy('email')} required />
-                  </Field>
-                </div>
-                <Field id={ids.subject} label="Subject" error={errors.subject}>
-                  <input id={ids.subject} name="subject" type="text" maxLength={LIMITS.subject} value={form.subject} onChange={handleChange} aria-invalid={Boolean(errors.subject)} aria-describedby={describedBy('subject')} required />
-                </Field>
-                <Field id={ids.message} label="Message" error={errors.message}>
-                  <textarea id={ids.message} name="message" rows={6} maxLength={LIMITS.message} value={form.message} onChange={handleChange} aria-invalid={Boolean(errors.message)} aria-describedby={describedBy('message')} data-lenis-prevent required />
-                </Field>
-
-                {/* Honeypot: invisible to people, tempting to bots */}
-                <div className={styles.honeypot} aria-hidden="true">
-                  <label htmlFor={`${uid}-website`}>Website</label>
-                  <input id={`${uid}-website`} name="website" type="text" tabIndex={-1} autoComplete="off" value={form.website} onChange={handleChange} />
-                </div>
-
-                {captchaState !== 'off' && (
-                  <div className={styles.captcha}>
-                    <div ref={captchaRef} />
-                    {captchaState === 'failed' && <p className={styles.fieldError}>The CAPTCHA couldn’t load. Check your connection or disable blockers for this site.</p>}
-                    {errors.captcha && <p className={styles.fieldError} role="alert">{errors.captcha}</p>}
-                  </div>
-                )}
-
-                {status === 'error' && (
-                  <p className={styles.error} role="alert">
-                    <FiAlertCircle aria-hidden="true" />
-                    <span>
-                      {errorMessage}{' '}
-                      {profile.email ? (
-                        <>You can also email <a href={`mailto:${profile.email}`}>{profile.email}</a>.</>
-                      ) : (
-                        'Please try again later.'
-                      )}
-                    </span>
-                  </p>
-                )}
-
-                <button type="submit" className="btn btn--primary" disabled={status === 'sending' || !configured} aria-disabled={status === 'sending' || !configured}>
-                  {status === 'sending' ? 'Sending…' : 'Send message'} <FiSend aria-hidden="true" />
-                </button>
-              </form>
-            )}
-          </motion.div>
-        </motion.div>
+              <button type="submit" className="btn btn--primary" disabled={status === 'sending' || !configured} aria-disabled={status === 'sending' || !configured}>
+                {status === 'sending' ? 'Sending…' : 'Send message'} <FiSend aria-hidden="true" />
+              </button>
+            </form>
+          )}
+        </Reveal>
       </div>
     </section>
   )

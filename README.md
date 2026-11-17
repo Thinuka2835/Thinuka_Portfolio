@@ -24,6 +24,7 @@ Personal portfolio of **Thinuka**, project manager, with a private admin panel f
 - [Contact form (EmailJS)](#contact-form-emailjs)
 - [Deploying to Vercel](#deploying-to-vercel)
 - [Security model](#security-model)
+- [Accessibility](#accessibility)
 - [Checks and tests](#checks-and-tests)
 - [Troubleshooting](#troubleshooting)
 - [Contributing, conduct and security](#contributing-conduct-and-security)
@@ -382,6 +383,10 @@ Store it as `GITHUB_CONTENT_TOKEN` (Production, plus Preview if you want preview
   - `X-Frame-Options: DENY`, `nosniff`, a referrer policy and a permissions policy.
   - The admin and API responses also send `noindex` and `no-store`.
 - **Secrets**: they live only in server environment variables. `.env*` files are git-ignored, and `VITE_*` values are public by design.
+
+## Accessibility
+
+See [ACCESSIBILITY.md](ACCESSIBILITY.md) for existing accessibility support, guidance for writing accessible Markdown, manual review checks and how to report accessibility issues.
 
 ## Checks and tests
 

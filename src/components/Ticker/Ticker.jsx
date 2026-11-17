@@ -1,26 +1,28 @@
-import { ticker } from '../../data/personalDetails'
+import { useSiteData } from '../../lib/siteData'
 import styles from './Ticker.module.css'
 
-function Group({ hidden }) {
+function Group({ items, hidden }) {
   return (
     <ul className={styles.group} aria-hidden={hidden || undefined}>
-      {ticker.map((item) => (
-        <li key={item} className={styles.item}>
-          {item}
-          <span className={styles.separator} aria-hidden="true">✦</span>
+      {items.map((item) => (
+        <li key={item.id} className={styles.item}>
+          {item.label}
+          <span className={styles.dot} aria-hidden="true" />
         </li>
       ))}
     </ul>
   )
 }
 
+/** Infinite marquee of skills: the list is rendered twice and slides -50% in 22s. */
 export default function Ticker() {
-  // Two identical groups translate by -50% for a seamless loop; the copy is hidden from screen readers.
+  const { ticker } = useSiteData()
+  if (!ticker.length) return null
   return (
-    <section className={styles.ticker} aria-label="Core skills">
+    <section className={styles.marquee} aria-label="Core skills">
       <div className={styles.track}>
-        <Group />
-        <Group hidden />
+        <Group items={ticker} />
+        <Group items={ticker} hidden />
       </div>
     </section>
   )

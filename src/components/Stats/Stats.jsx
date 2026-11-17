@@ -1,47 +1,29 @@
-import { useEffect, useRef, useState } from 'react'
-import { motion, useInView, animate, useReducedMotion } from 'framer-motion'
 import { useSiteData } from '../../lib/siteData'
-import { fadeUp, revealOnView, stagger } from '../../lib/motion'
+import { Eyebrow, Reveal, RevealText } from '../Motion/Motion'
 import styles from './Stats.module.css'
 
-function Counter({ value, suffix }) {
-  const ref = useRef(null)
-  const inView = useInView(ref, { once: true, amount: 0.6 })
-  const reduceMotion = useReducedMotion()
-  const [display, setDisplay] = useState(0)
-
-  useEffect(() => {
-    if (!inView || reduceMotion) return
-    const controls = animate(0, value, {
-      duration: 1.6,
-      ease: 'easeOut',
-      onUpdate: (v) => setDisplay(Math.round(v)),
-    })
-    return () => controls.stop()
-  }, [inView, value, reduceMotion])
-
-  return (
-    <span ref={ref} className={styles.number}>
-      {/* Screen readers get the final value, not every animation frame */}
-      <span aria-hidden="true">{reduceMotion ? value : display}{suffix}</span>
-      <span className="visually-hidden">{value}{suffix}</span>
-    </span>
-  )
-}
-
+/** "Impact" — the career stats as a bordered 1/2/4-column figure grid. */
 export default function Stats() {
   const { stats } = useSiteData()
   if (!stats.length) return null
   return (
-    <section className={`section section--alt ${styles.stats}`} aria-label="Career highlights">
-      <motion.ul className={`container ${styles.grid}`} variants={stagger(0.1)} {...revealOnView}>
-        {stats.map((stat) => (
-          <motion.li key={stat.id} className={styles.card} variants={fadeUp}>
-            <Counter value={stat.value} suffix={stat.suffix} />
-            <span className={styles.label}>{stat.label}</span>
-          </motion.li>
+    <section id="impact" className="section" aria-labelledby="impact-title">
+      <div>
+        <Eyebrow>By The Numbers</Eyebrow>
+        <RevealText as="h2" id="impact-title" text="Career highlights" className={`heading ${styles.heading}`} />
+      </div>
+      <dl className={styles.grid}>
+        {stats.map((stat, i) => (
+          <Reveal key={stat.id} className={styles.cell} delay={i * 110} dur={560}>
+            {/* dt before dd for valid markup; CSS `order` shows the figure first */}
+            <dt className={styles.label}>{stat.label}</dt>
+            <dd className={styles.figure}>
+              {stat.value}
+              {stat.suffix}
+            </dd>
+          </Reveal>
         ))}
-      </motion.ul>
+      </dl>
     </section>
   )
 }

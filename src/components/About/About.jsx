@@ -1,54 +1,36 @@
-import { motion } from 'framer-motion'
-import { FiArrowRight, FiDownload } from 'react-icons/fi'
+import { FiArrowUpRight } from 'react-icons/fi'
 import { useSiteData } from '../../lib/siteData'
-import { useSectionLink } from '../../lib/scroll'
 import { hasLink, externalProps } from '../../lib/links'
-import { fadeUp, revealOnView, stagger } from '../../lib/motion'
+import { Eyebrow, Reveal, RevealText } from '../Motion/Motion'
+import Tools from '../Tools/Tools'
 import styles from './About.module.css'
 
-const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-
-/** Wraps every occurrence of `word` in the quote with a highlight. */
-function HighlightedQuote({ quote, word }) {
-  if (!word) return quote
-  const parts = quote.split(new RegExp(`(${escapeRegExp(word)})`, 'i'))
-  return parts.map((part, i) =>
-    part.toLowerCase() === word.toLowerCase() ? <mark key={i} className={styles.highlight}>{part}</mark> : part
-  )
-}
-
+/** "The Story" layout: heading + bio on the left, the toolkit as a numbered list on the right. */
 export default function About() {
   const { profile } = useSiteData()
-  const sectionLink = useSectionLink()
-  const { quote, highlightedWord, bio, resumeUrl } = profile
+  const heading = `${profile.greeting} ${profile.name}.`.trim()
 
   return (
-    <section id="about" className={`section section--alt ${styles.about}`} aria-labelledby="about-title">
-      <motion.div className={`container ${styles.inner}`} variants={stagger(0.12)} {...revealOnView}>
-        <div>
-          <motion.p className={styles.eyebrow} variants={fadeUp}>
-            <span className={styles.bar} aria-hidden="true" />
-            About me
-          </motion.p>
-          <motion.h2 id="about-title" className={styles.quote} variants={fadeUp}>
-            <HighlightedQuote quote={quote} word={highlightedWord} />
-          </motion.h2>
-        </div>
-
-        <motion.div className={styles.body} variants={fadeUp}>
-          <p className={styles.bio}>{bio}</p>
-          <div className={styles.actions}>
-            <a href="/#projects" className="btn btn--primary" onClick={sectionLink('projects')}>
-              See my work <FiArrowRight aria-hidden="true" />
-            </a>
-            {hasLink(resumeUrl) && (
-              <a href={resumeUrl} className="btn btn--ghost" {...externalProps(resumeUrl)}>
-                <FiDownload aria-hidden="true" /> Download résumé
+    <section id="about" className={`section ${styles.about}`} aria-labelledby="about-title">
+      <div className={styles.grid}>
+        <div className={styles.left}>
+          <Eyebrow>About Me</Eyebrow>
+          <RevealText as="h2" id="about-title" text={heading} className={`heading heading--lg ${styles.heading}`} />
+          <Reveal as="p" className={styles.bio} dur={520}>
+            {profile.bio}
+          </Reveal>
+          {hasLink(profile.resumeUrl) && (
+            <Reveal delay={120} dur={520}>
+              <a href={profile.resumeUrl} className={styles.resume} {...externalProps(profile.resumeUrl)}>
+                Download résumé <FiArrowUpRight aria-hidden="true" />
               </a>
-            )}
-          </div>
-        </motion.div>
-      </motion.div>
+            </Reveal>
+          )}
+        </div>
+        <div id="tools" className={styles.right}>
+          <Tools />
+        </div>
+      </div>
     </section>
   )
 }

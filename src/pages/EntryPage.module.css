@@ -3,7 +3,8 @@
 }
 
 .inner {
-  max-width: calc(920px + var(--gutter) * 2);
+  max-width: 62rem;
+  margin-inline: auto;
 }
 
 .back {
@@ -12,8 +13,10 @@
   gap: 0.45rem;
   min-height: 44px;
   margin-bottom: 1.5rem;
-  font-family: var(--font-display);
+  font-size: var(--fs-eyebrow);
   font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
   color: var(--fg-muted);
   text-decoration: none;
 }
@@ -27,28 +30,35 @@
 }
 
 .eyebrow {
-  margin-bottom: 0.75rem;
-  font-family: var(--font-display);
-  font-size: 0.82rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
+  margin-bottom: 1.5rem;
+  font-size: var(--fs-eyebrow);
+  font-weight: 500;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--accent-text);
 }
 
 .title {
   font-family: var(--font-display);
-  font-size: clamp(2.2rem, 5.5vw, 3.6rem);
-  font-weight: 700;
-  line-height: 1.08;
-  letter-spacing: -0.035em;
+  font-size: var(--fs-h1);
+  font-weight: 400;
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
   text-wrap: balance;
+}
+
+@media (min-width: 640px) {
+  .title {
+    font-size: var(--fs-display);
+    line-height: var(--lh-display);
+  }
 }
 
 .description {
   max-width: 62ch;
   margin-top: 1rem;
-  font-size: clamp(1.05rem, 1.8vw, 1.25rem);
+  font-size: var(--fs-lead);
   line-height: 1.6;
   color: var(--fg-muted);
 }

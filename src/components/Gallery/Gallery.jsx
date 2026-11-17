@@ -1,129 +1,81 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { FiAward, FiX, FiMaximize2, FiExternalLink } from 'react-icons/fi'
+import { useRef, useState } from 'react'
+import { FiArrowUpRight } from 'react-icons/fi'
 import { useSiteData } from '../../lib/siteData'
-import { lockScroll, unlockScroll } from '../../lib/scroll'
-import { fadeUp, revealOnView, stagger } from '../../lib/motion'
+import { useInViewOnce } from '../../lib/motion'
 import { hasLink, externalProps } from '../../lib/links'
+import { Eyebrow, Reveal, RevealText } from '../Motion/Motion'
+import LiquidImage from '../LiquidImage/LiquidImage'
 import { cldSrcSet, cldUrl } from '../../../shared/cloudinary.js'
-import SectionHeader from '../SectionHeader/SectionHeader'
 import styles from './Gallery.module.css'
 
-function Lightbox({ item, onClose }) {
-  const closeRef = useRef(null)
-  const dialogRef = useRef(null)
-
-  useEffect(() => {
-    const previouslyFocused = document.activeElement
-    lockScroll()
-    closeRef.current?.focus()
-
-    const onKey = (e) => {
-      if (e.key === 'Escape') onClose()
-      if (e.key === 'Tab' && dialogRef.current) {
-        // Keep keyboard focus inside the dialog
-        const focusables = dialogRef.current.querySelectorAll('button, [href], [tabindex]:not([tabindex="-1"])')
-        const first = focusables[0]
-        const last = focusables[focusables.length - 1]
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault()
-          last.focus()
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault()
-          first.focus()
-        }
-      }
-    }
-    window.addEventListener('keydown', onKey)
-    return () => {
-      window.removeEventListener('keydown', onKey)
-      unlockScroll()
-      previouslyFocused?.focus?.({ preventScroll: true })
-    }
-  }, [onClose])
-
-  return (
-    <motion.div className={styles.overlay} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}>
-      <motion.div
-        ref={dialogRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="lightbox-title"
-        className={styles.modal}
-        initial={{ opacity: 0, scale: 0.95, y: 16 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 16 }}
-        transition={{ duration: 0.25, ease: 'easeOut' }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button ref={closeRef} type="button" className={styles.closeBtn} onClick={onClose} aria-label="Close">
-          <FiX aria-hidden="true" />
-        </button>
-        <div className={styles.modalImage}>
-          {item.image ? (
-            <img
-              src={cldUrl(item.image.url, { width: 900 })}
-              srcSet={cldSrcSet(item.image.url, [450, 900, 1350], { maxWidth: item.image.width })}
-              sizes="(min-width: 520px) 400px, 90vw"
-              alt={item.image.alt || item.title}
-              width={item.image.width}
-              height={item.image.height}
-            />
-          ) : (
-            <FiAward className={styles.placeholderIconLarge} aria-hidden="true" />
-          )}
-        </div>
-        <h3 id="lightbox-title" className={styles.modalTitle}>{item.title}</h3>
-        <p className={styles.modalMeta}>{[item.issuer, item.year].filter(Boolean).join(' · ')}</p>
-        {hasLink(item.url) && (
-          <a href={item.url} className={`btn btn--ghost btn--sm ${styles.credential}`} {...externalProps(item.url)}>
-            View credential <FiExternalLink aria-hidden="true" />
-          </a>
-        )}
-      </motion.div>
-    </motion.div>
-  )
-}
-
+/** Certifications in the interactive "Voices" layout: selector list + featured panel. */
 export default function Gallery() {
   const { certifications } = useSiteData()
-  const [active, setActive] = useState(null)
-  const close = useCallback(() => setActive(null), [])
+  const [activeIndex, setActiveIndex] = useState(0)
+  const panelRef = useRef(null)
+  const panelIn = useInViewOnce(panelRef)
+
   if (!certifications.length) return null
+  const active = certifications[Math.min(activeIndex, certifications.length - 1)]
+  const meta = [active.issuer, active.year].filter(Boolean).join(' — ')
 
   return (
-    <section id="gallery" className="section section--alt" aria-labelledby="gallery-title">
-      <div className="container">
-        <SectionHeader
-          id="gallery-title"
-          eyebrow="Credentials"
-          title="Certifications & achievements"
-          intro="Formal training and recognition behind the way I run projects."
-        />
-
-        <motion.ul className={styles.grid} variants={stagger(0.07)} {...revealOnView}>
-          {certifications.map((item) => (
-            <motion.li key={item.id} variants={fadeUp}>
-              <button type="button" className={styles.card} onClick={() => setActive(item)} aria-haspopup="dialog">
-                <span className={styles.cardIcon}>
-                  {item.image ? (
-                    <img src={cldUrl(item.image.url, { width: 112, height: 112, crop: 'fill' })} alt="" width="56" height="56" loading="lazy" />
-                  ) : (
-                    <FiAward aria-hidden="true" />
-                  )}
-                </span>
-                <span className={styles.cardBody}>
-                  <span className={styles.cardTitle}>{item.title}</span>
-                  <span className={styles.cardMeta}>{[item.issuer, item.year].filter(Boolean).join(' · ')}</span>
-                </span>
-                <FiMaximize2 className={styles.expand} aria-hidden="true" />
-              </button>
-            </motion.li>
-          ))}
-        </motion.ul>
+    <section id="gallery" className="section" aria-labelledby="gallery-title">
+      <div>
+        <Eyebrow>Credentials</Eyebrow>
+        <RevealText as="h2" id="gallery-title" text="Certifications & achievements" className={`heading ${styles.heading}`} />
       </div>
 
-      <AnimatePresence>{active && <Lightbox key={active.id} item={active} onClose={close} />}</AnimatePresence>
+      <div className={styles.body}>
+        <ul className={styles.list}>
+          {certifications.map((c, i) => {
+            const isActive = i === activeIndex
+            return (
+              <li key={c.id}>
+                <button
+                  type="button"
+                  className={`${styles.option} ${isActive ? styles.active : ''}`}
+                  aria-pressed={isActive}
+                  onMouseEnter={() => setActiveIndex(i)}
+                  onFocus={() => setActiveIndex(i)}
+                  onClick={() => setActiveIndex(i)}
+                >
+                  <span className={styles.index}>{String(i + 1).padStart(2, '0')}</span>
+                  <span className={styles.who}>
+                    <span className={styles.name}>{c.title}</span>
+                    <span className={styles.role}>{[c.issuer, c.year].filter(Boolean).join(' · ')}</span>
+                  </span>
+                  <span className={styles.rule} aria-hidden="true" />
+                </button>
+              </li>
+            )
+          })}
+        </ul>
+
+        <div ref={panelRef} className={styles.panel} aria-live="polite">
+          <blockquote className={styles.quote}>
+            {/* Remounts per certificate, so the word reveal replays on every change */}
+            <RevealText key={active.id} as="p" mode="words" text={`“${active.title}”`} play={panelIn} animateOnMount className={styles.quoteText} />
+            {meta && <footer className={styles.meta}>{meta}</footer>}
+            {hasLink(active.url) && (
+              <a href={active.url} className={styles.credential} {...externalProps(active.url)}>
+                View credential <FiArrowUpRight aria-hidden="true" />
+              </a>
+            )}
+          </blockquote>
+          <Reveal className={styles.portrait} play={panelIn} y={0} scale={1.06} dur={640}>
+            <LiquidImage
+              className={styles.portraitImage}
+              distortion={22}
+              src={active.image ? cldUrl(active.image.url, { width: 640, height: 800, crop: 'fill', gravity: 'auto' }) : undefined}
+              srcSet={active.image ? cldSrcSet(active.image.url, [320, 640, 960], { crop: 'fill', gravity: 'auto', aspectRatio: 4 / 5 }) : undefined}
+              sizes="(min-width: 640px) 16rem, 92vw"
+              alt={active.image?.alt || active.title}
+              placeholderLabel={active.issuer || 'Certified'}
+            />
+          </Reveal>
+        </div>
+      </div>
     </section>
   )
 }

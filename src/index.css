@@ -1,10 +1,124 @@
-/* Public site global styles. Tokens/base live in styles/tokens.css. */
+/* ============================================================
+   Public site — cinematic dark one-pager design system.
+   Shared base/reset/utilities come from styles/tokens.css (also used
+   by the admin); everything below overrides it for the public site only.
+   ============================================================ */
 @import './styles/tokens.css';
 
-/* The custom cursor adds this class only on devices with a fine, hovering pointer */
-html.has-custom-cursor,
-html.has-custom-cursor * {
-  cursor: none !important;
+/* ── Tokens ─────────────────────────────────────────────── */
+:root,
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --background: #08080a;
+  --foreground: #f3f1ea;
+  --surface: #111114;
+  --surface-2: #17171b;
+  --muted: #807f78;
+  --line: rgba(243, 241, 234, 0.1);
+  --line-strong: rgba(243, 241, 234, 0.22);
+  --accent: #ff3b1d;
+  --accent-2: #ff6a3d;
+  --accent-text: #ff3b1d;   /* accent used for small text (5.6:1 on background) */
+  --on-accent: #08080a;     /* text on accent fills */
+  --success: #3ddc84;
+  --danger: #ff7b72;
+  --danger-bg: rgba(255, 123, 114, 0.12);
+  --warning: #f5c451;
+  --warning-bg: rgba(245, 196, 81, 0.12);
+  --code-bg: #111114;
+
+  /* Aliases used by shared components (entry pages, prose) */
+  --bg: var(--background);
+  --bg-alt: var(--surface);
+  --fg: var(--foreground);
+  --fg-muted: var(--muted);
+  --surface-solid: var(--surface);
+  --accent-strong: var(--accent);
+  --accent-soft: rgba(255, 59, 29, 0.14);
+  --header-bg: rgba(8, 8, 10, 0.9);
+}
+
+/* Light theme: the same system, inverted onto warm paper */
+:root[data-theme='light'] {
+  color-scheme: light;
+  --background: #f3f1ea;
+  --foreground: #0d0d0f;
+  --surface: #e9e6dc;
+  --surface-2: #dfdbcf;
+  --muted: #5d5c56;
+  --line: rgba(8, 8, 10, 0.12);
+  --line-strong: rgba(8, 8, 10, 0.26);
+  --accent: #ff3b1d;
+  --accent-2: #ff6a3d;
+  --accent-text: #c42a10;
+  --on-accent: #08080a;
+  --success: #157f3b;
+  --danger: #b42318;
+  --danger-bg: rgba(180, 35, 24, 0.08);
+  --warning: #8a5a00;
+  --warning-bg: rgba(245, 180, 0, 0.14);
+  --code-bg: #e9e6dc;
+  --header-bg: rgba(243, 241, 234, 0.9);
+  --accent-soft: rgba(255, 59, 29, 0.12);
+}
+
+:root {
+  --font-display: 'Anton', 'Impact', sans-serif;
+  --font-sans: 'Onest', system-ui, sans-serif;
+  --font-body: var(--font-sans);
+
+  --gutter: 2.5rem;
+  --section: 9rem;
+  --nav-h: 5.5rem;
+
+  /* Type scale */
+  --fs-hero: 28rem;     --lh-hero: 0.78;
+  --fs-mega: 13rem;     --lh-mega: 0.86;
+  --fs-display: 7.5rem; --lh-display: 0.9;
+  --fs-h1: 5rem;        --lh-h1: 0.95;
+  --fs-h2: 3.25rem;     --lh-h2: 1;
+  --fs-h3: 1.75rem;     --lh-h3: 1.15;
+  --fs-lead: 1.375rem;  --lh-lead: 1.45;
+  --fs-body: 1.0625rem; --lh-body: 1.6;
+  --fs-eyebrow: 0.8125rem; --lh-eyebrow: 1.2;
+
+  /* Spring → easing equivalents */
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-quart: cubic-bezier(0.165, 0.84, 0.44, 1);
+  --ease-wipe: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ── Adaptive rem grid: layout authored at 1920px, scales with the viewport ── */
+html {
+  font-size: 16px;
+  background: var(--background);
+}
+@media (max-width: 1920px) { html { font-size: 0.833333vw; } }
+@media (max-width: 1440px) { html { font-size: 1.111111vw; } }
+@media (max-width: 1024px) { html { font-size: 1.5625vw; } }
+@media (max-width: 640px) {
+  html { font-size: 4.444444vw; }
+  :root { --gutter: 16px; }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+::selection {
+  background: var(--accent);
+  color: #08080a;
 }
 
 /* Lenis drives smooth scrolling in JS — native smooth-scroll would fight it */
@@ -13,25 +127,176 @@ html.lenis-smooth {
   scroll-behavior: auto !important;
 }
 
-/* Scrollbar */
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
-
-/* Sections alternate between the two background tones of the active theme */
+/* ── Layout helpers ─────────────────────────────────────── */
 .section {
-  padding-block: var(--section-pad);
-  scroll-margin-top: var(--nav-h);
-  background: var(--bg);
+  position: relative;
+  padding: var(--section) var(--gutter);
+  scroll-margin-top: 0;
 }
 
-.section--alt {
-  background: var(--bg-alt);
-}
-
-/* Page (non-home) layout */
 .page {
-  padding-top: calc(var(--nav-h) + clamp(2.5rem, 6vw, 4.5rem));
-  padding-bottom: var(--section-pad);
+  padding: calc(var(--nav-h) + 4rem) var(--gutter) var(--section);
   min-height: 70vh;
+}
+
+.page .container {
+  padding-inline: 0;
+}
+
+.heading {
+  margin-top: 1.5rem;
+  font-family: var(--font-display);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  font-size: var(--fs-h2);
+  line-height: 0.95;
+  color: var(--foreground);
+}
+
+@media (min-width: 640px) {
+  .heading--lg {
+    font-size: var(--fs-h1);
+  }
+}
+
+.label {
+  font-size: var(--fs-eyebrow);
+  line-height: var(--lh-eyebrow);
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--muted);
+}
+
+/* Button (contact form submit, 404) */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-height: 3rem;
+  padding: 0.9rem 1.8rem;
+  border: 1px solid transparent;
+  border-radius: 9999px;
+  font-family: var(--font-sans);
+  font-size: var(--fs-eyebrow);
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background-color 340ms ease-out, color 340ms ease-out, border-color 340ms ease-out, transform 340ms ease-out;
+}
+
+.btn--primary {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.btn--primary:hover {
+  background: var(--accent-2);
+  transform: translateY(-2px);
+}
+
+.btn--ghost {
+  border-color: var(--line-strong);
+  color: var(--foreground);
+}
+
+.btn--ghost:hover {
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+@media (max-width: 640px) {
+  .btn {
+    min-height: 44px;
+  }
+}
+
+/* ── Reveal system (spring equivalents) ─────────────────── */
+/* Block fade + slide: set --y, --dur, --ease, --delay inline */
+.reveal {
+  opacity: 0;
+  transform: translate3d(0, var(--y, 16px), 0) scale(var(--s, 1));
+  transition:
+    opacity var(--dur, 560ms) var(--ease, var(--ease-expo)) var(--delay, 0ms),
+    transform var(--dur, 560ms) var(--ease, var(--ease-expo)) var(--delay, 0ms);
+}
+
+.reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* Split-text reveals (letters / lines / words) */
+.rt-line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.06em;
+  margin-bottom: -0.06em;
+}
+
+.rt-mask {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+
+.rt-unit {
+  display: inline-block;
+  opacity: 0;
+  transform: translate3d(0, var(--from, 110%), 0);
+  transition:
+    transform var(--dur, 900ms) var(--ease, var(--ease-expo)) var(--d, 0ms),
+    opacity var(--dur, 900ms) var(--ease, var(--ease-expo)) var(--d, 0ms);
+  will-change: transform;
+}
+
+.is-in .rt-unit {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .rt-unit {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+/* ── Eyebrow ────────────────────────────────────────────── */
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: var(--fs-eyebrow);
+  line-height: var(--lh-eyebrow);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--muted);
+}
+
+.eyebrow-dot {
+  flex-shrink: 0;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: var(--accent);
+}
+
+.skip-link {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.main {
+  position: relative;
+  width: 100%;
+  overflow-x: clip;
+  outline: none;
 }

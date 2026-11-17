@@ -1,58 +1,62 @@
-.grid {
+.eyebrow {
+  margin-bottom: 1.5rem;
+}
+
+.list {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1rem;
-  list-style: none;
 }
 
-.card {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1.35rem 1.4rem;
-  border-radius: var(--radius);
-  border: 1px solid var(--line);
-  background: var(--surface);
-  transition:
-    border-color 0.25s var(--ease),
-    background-color 0.25s var(--ease),
-    translate 0.25s var(--ease);
+@media (min-width: 640px) {
+  .list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--gutter);
+  }
 }
 
-.card:hover {
-  border-color: var(--accent-text);
-  background: var(--surface-hover);
-  translate: 0 -4px;
+.item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  column-gap: 1.5rem;
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--line);
 }
 
-.icon {
-  flex-shrink: 0;
-  width: 44px;
-  height: 44px;
-  padding: 10px;
-  border-radius: 12px;
-  background: var(--surface-2);
-  color: var(--fg-muted);
-  transition: color 0.25s ease, background-color 0.25s ease;
+.item:last-child,
+.item:nth-last-child(2):nth-child(odd) {
+  border-bottom: 1px solid var(--line);
 }
 
-.card:hover .icon {
-  color: #ffffff;
-  background: var(--accent-strong);
+@media (max-width: 639px) {
+  .item:nth-last-child(2):nth-child(odd) {
+    border-bottom: 0;
+  }
+}
+
+.index {
+  font-size: var(--fs-h3);
+  line-height: var(--lh-h3);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent-text);
 }
 
 .name {
-  font-family: var(--font-display);
-  font-size: 1.02rem;
+  font-size: var(--fs-h3);
+  line-height: var(--lh-h3);
   font-weight: 600;
-  color: var(--fg);
+  letter-spacing: -0.01em;
+  color: var(--foreground);
 }
 
-@media (max-width: 1023px) {
-  .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.icon {
+  align-self: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--muted);
+  transition: color 340ms ease-out;
 }
 
-@media (max-width: 640px) {
-  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
-  .card { flex-direction: column; text-align: center; gap: 0.7rem; padding: 1.2rem 0.8rem; }
+.item:hover .icon {
+  color: var(--accent);
 }

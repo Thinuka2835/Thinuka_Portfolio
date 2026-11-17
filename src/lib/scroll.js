@@ -24,6 +24,7 @@ export function initLenis() {
     rafId = requestAnimationFrame(raf)
   }
   rafId = requestAnimationFrame(raf)
+  if (lockCount > 0) lenis.stop() // e.g. the preloader locked scrolling first
   return lenis
 }
 

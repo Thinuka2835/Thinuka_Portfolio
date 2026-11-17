@@ -22,10 +22,11 @@ export const personal = {
   highlightedWord: "impact",
   availability: "Available for new projects",
 
-  // Contact — TODO: replace with your real details (or set them in the admin panel)
-  email: "you@email.com",
-  phone: "+1 (555) 000-0000",
-  location: "Remote — Your City, Country",
+  // Contact — empty fields are hidden on the site. Add your real details here
+  // or in the admin panel (Profile & settings).
+  email: "",
+  phone: "",
+  location: "",
   resumeUrl: "",
 };
 
@@ -61,19 +62,10 @@ export const tools = [
   { name: "ClickUp",     iconKey: "SiClickup" },
 ];
 
-export const stats = [
-  { value: 3,   suffix: "+", label: "Years Experience" },     // ← TODO: your real numbers
-  { value: 20,  suffix: "+", label: "Projects Delivered" },
-  { value: 10,  suffix: "+", label: "Teams Led" },
-  { value: 100, suffix: "%", label: "Client Satisfaction" },
-];
+// Career figures for the "Impact" section — e.g. { value: 5, suffix: "+", label: "Years Experience" }.
+// The section (and its nav link) is hidden while this is empty. Add them in the admin panel.
+export const stats = [];
 
-// Certifications & achievements — TODO: replace with your real ones
-export const gallery = [
-  { title: "PMP® — Project Management Professional", issuer: "PMI",            year: "2024" },
-  { title: "Certified ScrumMaster (CSM)",             issuer: "Scrum Alliance", year: "2023" },
-  { title: "Agile Project Management",                issuer: "Google",         year: "2023" },
-  { title: "PRINCE2® Foundation",                     issuer: "AXELOS",         year: "2022" },
-  { title: "Leadership Excellence Award",             issuer: "Your Company",   year: "2022" },
-  { title: "Employee of the Year",                    issuer: "Your Company",   year: "2021" },
-];
+// Certifications & achievements — e.g. { title: "...", issuer: "...", year: "2024" }.
+// Hidden while empty. Add them (with certificate images) in the admin panel.
+export const gallery = [];

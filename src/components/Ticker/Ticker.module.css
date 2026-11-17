@@ -1,25 +1,23 @@
-.ticker {
+.marquee {
   position: relative;
   z-index: 1;
   overflow: hidden;
-  padding: 1.1rem 0;
-  background: var(--accent);
-  color: #111111;
+  padding-block: 2rem;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background: var(--background);
 }
 
 .track {
   display: flex;
+  flex-wrap: nowrap;
   width: max-content;
-  animation: marquee 40s linear infinite;
-}
-
-.ticker:hover .track {
-  animation-play-state: paused;
+  animation: marquee 22s linear infinite;
 }
 
 .group {
   display: flex;
-  list-style: none;
+  flex-wrap: nowrap;
 }
 
 .item {
@@ -27,19 +25,29 @@
   align-items: center;
   white-space: nowrap;
   font-family: var(--font-display);
-  font-size: clamp(1rem, 1.6vw, 1.25rem);
-  font-weight: 700;
-  letter-spacing: 0.03em;
+  font-size: var(--fs-h2);
+  line-height: 1;
   text-transform: uppercase;
+  letter-spacing: -0.01em;
+  color: var(--foreground);
 }
 
-.separator {
-  margin: 0 1.4rem;
-  font-size: 0.9em;
-  color: #ffffff;
+.dot {
+  flex-shrink: 0;
+  margin-inline: 2rem;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 9999px;
+  background: var(--accent);
 }
 
 @keyframes marquee {
   from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
+  to { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    animation: none;
+  }
 }

@@ -1,13 +1,14 @@
 import { useEffect } from 'react'
-import { MotionConfig } from 'framer-motion'
 import { Route, Routes, useLocation } from 'react-router'
-import Cursor from './components/Cursor/Cursor'
+import Preloader from './components/Preloader/Preloader'
 import Navbar from './components/Navbar/Navbar'
 import Footer from './components/Footer/Footer'
 import HomePage from './pages/HomePage'
 import EntryPage from './pages/EntryPage'
 import ArticlesPage from './pages/ArticlesPage'
 import NotFoundPage from './pages/NotFoundPage'
+import { useSiteData } from './lib/siteData'
+import { applyAdaptiveGrid } from './lib/motion'
 import { destroyLenis, initLenis, scrollToSection, scrollToTop } from './lib/scroll'
 
 /** Scroll to the top on page changes, or to #section when the URL has a hash. */
@@ -26,19 +27,25 @@ function ScrollManager() {
 }
 
 export default function App() {
+  const { profile } = useSiteData()
+
   useEffect(() => {
     initLenis()
-    return destroyLenis
+    applyAdaptiveGrid()
+    window.addEventListener('resize', applyAdaptiveGrid)
+    return () => {
+      window.removeEventListener('resize', applyAdaptiveGrid)
+      destroyLenis()
+    }
   }, [])
 
   return (
-    // reducedMotion="user" turns off transform animations for users who ask for it
-    <MotionConfig reducedMotion="user">
+    <>
       <a href="#main" className="skip-link">Skip to content</a>
-      <Cursor />
+      <Preloader name={profile.name} />
       <Navbar />
       <ScrollManager />
-      <main id="main" tabIndex={-1}>
+      <main id="main" tabIndex={-1} className="main">
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/projects/:slug" element={<EntryPage type="projects" />} />
@@ -49,6 +56,6 @@ export default function App() {
         </Routes>
       </main>
       <Footer />
-    </MotionConfig>
+    </>
   )
 }
