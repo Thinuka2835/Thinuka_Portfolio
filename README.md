@@ -351,7 +351,7 @@ Store it as `GITHUB_CONTENT_TOKEN` (Production, plus Preview if you want preview
 
 - The production domain is **`thinuka-ransidu.me`** (apex is canonical; `www` redirects to it). In **Settings → Domains**, add both and create the DNS records Vercel shows. The exact steps are in [SEO.md §8](SEO.md#8-domain-dns-and-vercel). Vercel issues and renews the HTTPS certificate automatically and redirects HTTP to HTTPS.
 - Add `https://thinuka-ransidu.me` to the EmailJS allowed origins and to the reCAPTCHA key's domains.
-- No `CNAME` file is needed: that is a GitHub Pages convention.
+- `public/CNAME` records the domain for GitHub Pages; Vercel ignores it, so the DNS records are what matter.
 - Authentication needs no callback URLs: it's first-party email and password, and cookies are host-only (`__Host-` prefix). If you serve the admin from another origin, add it to `APP_ORIGIN`.
 
 ### 7. Rebuild and rollback

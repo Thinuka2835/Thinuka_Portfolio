@@ -65,11 +65,11 @@ npm run build
 | `/og-image.png` | `public/` | 1200×630 default share image (hero composition) |
 | `/favicon.ico`, `/favicon.svg` | `public/` | 16/32 px ICO + scalable SVG |
 | `/apple-touch-icon.png` | `public/` | 180×180 |
+| `/CNAME` | `public/` | `thinuka-ransidu.me`. Only GitHub Pages reads this file; **Vercel ignores it** and uses the DNS records in §8. It's kept so the domain is recorded if the site is ever served from GitHub Pages |
 | `/icon-192.png`, `/icon-512.png`, `/icon-maskable-512.png` | `public/` | Manifest icons |
 
 **Deliberately not created:**
 
-- **`/CNAME`:** that file is for GitHub Pages. Vercel uses DNS records instead (see §8).
 - **`/.well-known/security.txt`:** RFC 9116 requires a working contact. The intended contact is GitHub private vulnerability reporting, which is **currently disabled** (see SECURITY.md). Once it's enabled, add `public/.well-known/security.txt` with the content below. `Expires` must be under a year away, so renew it yearly.
 
   ```
