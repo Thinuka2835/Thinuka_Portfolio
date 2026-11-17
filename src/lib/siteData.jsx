@@ -8,6 +8,7 @@ import { getDefaultSiteData } from '../../shared/siteDefaults.js'
 const SiteDataContext = createContext(null)
 
 function readEmbedded() {
+  if (typeof document === 'undefined') return getDefaultSiteData()
   try {
     const el = document.getElementById('site-data')
     if (el?.textContent) return JSON.parse(el.textContent)
@@ -17,8 +18,9 @@ function readEmbedded() {
   return getDefaultSiteData()
 }
 
-export function SiteDataProvider({ children }) {
-  const [data, setData] = useState(readEmbedded)
+/** `initialData` is passed during pre-rendering (no document on the server). */
+export function SiteDataProvider({ children, initialData }) {
+  const [data, setData] = useState(() => initialData ?? readEmbedded())
 
   useEffect(() => {
     const controller = new AbortController()

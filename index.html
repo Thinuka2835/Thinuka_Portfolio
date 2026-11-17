@@ -6,8 +6,12 @@
     <!--theme-init-->
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#08080a" />
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f3f1ea" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <!-- Page-specific title/description/Open Graph tags are generated at build time -->
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <!-- Route-specific title, description, canonical, Open Graph and JSON-LD are written
+         per page at build time (scripts/prerender.mjs, shared/seo.js) -->
     <!--meta:start-->
     <title>Portfolio</title>
     <!--meta:end-->
@@ -15,13 +19,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Anton&family=Onest:wght@400;500;600&display=swap" rel="stylesheet" />
+    <noscript>
+      <!-- Pre-rendered content stays readable without JavaScript -->
+      <style>.reveal,.rt-unit{opacity:1!important;transform:none!important}[data-preloader]{display:none!important}</style>
+    </noscript>
   </head>
   <body>
     <div id="root"></div>
     <!--site-data-->
-    <noscript>
-      <p style="padding:2rem;font-family:sans-serif">This portfolio needs JavaScript enabled to display.</p>
-    </noscript>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

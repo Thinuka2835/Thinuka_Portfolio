@@ -39,7 +39,13 @@
 }
 
 .logoName {
-  display: none;
+  /* Visually hidden on phones but still announced */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
   font-size: var(--fs-eyebrow);
   font-weight: 500;
   text-transform: uppercase;
@@ -48,7 +54,7 @@
 }
 
 @media (min-width: 640px) {
-  .logoName { display: inline; }
+  .logoName { position: static; width: auto; height: auto; overflow: visible; clip: auto; }
 }
 
 .right {

@@ -23,6 +23,7 @@ Personal portfolio of **Thinuka**, project manager, with a private admin panel f
 - [Images (Cloudinary)](#images-cloudinary)
 - [Contact form (EmailJS)](#contact-form-emailjs)
 - [Deploying to Vercel](#deploying-to-vercel)
+- [SEO and AI discovery](#seo-and-ai-discovery)
 - [Security model](#security-model)
 - [Accessibility](#accessibility)
 - [Checks and tests](#checks-and-tests)
@@ -35,8 +36,8 @@ Personal portfolio of **Thinuka**, project manager, with a private admin panel f
 
 | Area | Choice |
 | --- | --- |
-| UI | React 19, React Router, Framer Motion, Lenis (smooth scroll), CSS Modules |
-| Build | Vite (two entries: `index.html` public site, `admin.html` admin) |
+| UI | React 19, React Router, Lenis (smooth scroll), CSS Modules with spring-style CSS motion |
+| Build | Vite (two entries: `index.html` public site, `admin.html` admin) + build-time pre-rendering of every public page (`src/entry-server.jsx`, `scripts/prerender.mjs`) |
 | API | [Hono](https://hono.dev) app deployed as a single Vercel Function (`api/index.js`) |
 | Database | Neon PostgreSQL via `@neondatabase/serverless`, plain parameterized SQL, versioned `.sql` migrations |
 | Local DB | PGlite (embedded Postgres) — no account needed for development and tests |
@@ -61,7 +62,8 @@ Personal portfolio of **Thinuka**, project manager, with a private admin panel f
 ```
 
 - **Structured data** (profile, social links, stats, tools, ticker, certifications, image library, admins, sessions, publishing log) lives in **Neon**. The public site reads it from `GET /api/public/site`. Each deployment also embeds a copy in the HTML, so the first paint is already correct.
-- **Long-form content** (project case studies, articles, pages) lives as **Markdown files in `content/`**. At build time only *published* files are rendered to HTML, and every route gets prerendered `<head>` tags (title, description, canonical URL, Open Graph, Twitter).
+- **Long-form content** (project case studies, articles, pages) lives as **Markdown files in `content/`**. At build time only *published* files are rendered.
+- **Every public page is pre-rendered**: its HTML contains the real content (for crawlers and visitors without JavaScript) plus route-specific metadata and JSON-LD, and the browser hydrates it into the interactive app. See [SEO.md](SEO.md).
 - **Admin edits to Markdown** are committed to this repository through the GitHub API. The commit triggers a Vercel deployment, and the change is live when that deployment finishes (usually 1–2 minutes).
 
 ## Project structure
@@ -75,11 +77,11 @@ server/                 API code (Hono): auth, routes, services, config
   db/                   database client (Neon / PGlite) + migration runner
   routes/               auth, settings, collections, media, content, status
   services/             Cloudinary signing, content store (GitHub / filesystem), site data
-shared/                 code used by browser, server and build (content schema, Markdown, Cloudinary URLs)
+shared/                 code used by browser, server and build (content schema, Markdown, Cloudinary URLs, seo.js)
 db/migrations/          versioned SQL migrations (0001_initial.sql, …)
 content/                Markdown: projects/, articles/, pages/
-scripts/                migrate, seed, admin CLI
-src/                    public site (React)
+scripts/                migrate, seed, admin CLI, prerender (pages + SEO files after the build)
+src/                    public site (React); entry-server.jsx renders pages at build time
   admin/                admin app (separate bundle)
   data/personalDetails.js   default content (seed + fallback when no database)
 vite/                   build plugins: Markdown/prerender, local API server
@@ -120,7 +122,7 @@ You can also run with no `DATABASE_URL` at all: the public site then shows the d
 | Command | What it does |
 | --- | --- |
 | `npm run dev` | Vite dev server with the API mounted at `/api` |
-| `npm run build` | Production build to `dist/` (prerendered pages, sitemap, robots.txt) |
+| `npm run build` | Production build to `dist/`: client bundle, then pre-rendered pages, sitemap, robots.txt, llms.txt, feed and manifest |
 | `npm run preview` | Serves `dist/` with the API, admin routing and `vercel.json` headers, like production |
 | `npm run lint` | ESLint |
 | `npm test` | API, security and unit tests (in-memory Postgres, no network) |
@@ -152,7 +154,10 @@ Copy [`.env.example`](.env.example) to `.env`; `.env` is git-ignored. **`VITE_*`
 | `CONTENT_BRANCH` / `CONTENT_PRODUCTION_BRANCH` | server | Branch the admin commits to, and your production branch (both default to `main`) |
 | `CONTENT_ALLOW_DRAFTS` | server | Keep `false` while the repository is public (see below) |
 | `VERCEL_DEPLOY_HOOK_URL` | **secret** | Enables "Rebuild site" in the admin |
-| `SITE_URL` | build | Absolute URL for canonical links, Open Graph and the sitemap (defaults to Vercel's production domain) |
+| `SITE_URL` | build | Canonical origin (defaults to `https://thinuka-ransidu.me`) |
+| `SEO_INDEXABLE` / `SITE_LOCALE` / `AI_CRAWLERS` | build | Indexing outside Vercel, Open Graph locale (`en_US`), AI-crawler policy (`allow`/`disallow`). See [SEO.md](SEO.md) |
+| `GOOGLE_SITE_VERIFICATION` / `BING_SITE_VERIFICATION` | build | Optional search-engine ownership meta tags |
+| `VITE_GA_MEASUREMENT_ID` / `VITE_GA_CONSENT_DEFAULT` | **public**, optional | Google Analytics 4 (off when empty; consent defaults to denied) |
 | `VITE_EMAILJS_SERVICE_ID` / `VITE_EMAILJS_TEMPLATE_ID` / `VITE_EMAILJS_PUBLIC_KEY` | **public** | EmailJS identifiers, designed to be public |
 | `VITE_RECAPTCHA_SITE_KEY` | **public** | reCAPTCHA v2 *site* key (its secret key goes only into EmailJS) |
 
@@ -322,7 +327,7 @@ Add them under **Settings → Environment Variables**, scoped per environment:
 | `GITHUB_CONTENT_TOKEN`, `GITHUB_CONTENT_REPO` | set | set (optional) | — |
 | `CONTENT_BRANCH` | `main` | a non-production branch, e.g. `content-preview` (or leave unset: writes are then refused) | — |
 | `VITE_EMAILJS_*`, `VITE_RECAPTCHA_SITE_KEY` | set | set | set |
-| `SITE_URL` | `https://your-domain` | — | — |
+| `SITE_URL` | unset (defaults to `https://thinuka-ransidu.me`) | — | — |
 | `VERCEL_DEPLOY_HOOK_URL` | set (optional) | — | — |
 
 Non-production environments **refuse to commit to the production content branch** unless you explicitly set `ALLOW_PRODUCTION_CONTENT_WRITES=true`. Mark secrets as **Sensitive** in Vercel. Changing a variable takes effect on the next deployment.
@@ -344,10 +349,9 @@ Store it as `GITHUB_CONTENT_TOKEN` (Production, plus Preview if you want preview
 
 ### 6. Custom domain and HTTPS
 
-- **Settings → Domains → Add.** Create the DNS records Vercel shows (an `A` record for the apex, a `CNAME` for `www`). Vercel issues and renews the HTTPS certificate automatically and redirects HTTP to HTTPS.
-- Then:
-  - Set `SITE_URL=https://your-domain` and redeploy, so canonical, Open Graph and sitemap URLs use the domain.
-  - Add the domain to the EmailJS allowed origins and to the reCAPTCHA key's domains.
+- The production domain is **`thinuka-ransidu.me`** (apex is canonical; `www` redirects to it). In **Settings → Domains**, add both and create the DNS records Vercel shows. The exact steps are in [SEO.md §8](SEO.md#8-domain-dns-and-vercel). Vercel issues and renews the HTTPS certificate automatically and redirects HTTP to HTTPS.
+- Add `https://thinuka-ransidu.me` to the EmailJS allowed origins and to the reCAPTCHA key's domains.
+- No `CNAME` file is needed: that is a GitHub Pages convention.
 - Authentication needs no callback URLs: it's first-party email and password, and cookies are host-only (`__Host-` prefix). If you serve the admin from another origin, add it to `APP_ORIGIN`.
 
 ### 7. Rebuild and rollback
@@ -366,6 +370,19 @@ Store it as `GITHUB_CONTENT_TOKEN` (Production, plus Preview if you want preview
 - [ ] Upload an image, set its alt text, use it as a certification image, and confirm deleting it is refused while it's in use
 - [ ] Send a message through the contact form, and confirm it arrives in your inbox and Reply-To is the sender's address
 - [ ] Share a page URL in a link-preview checker and see the title, description and image
+- [ ] Follow [SEO.md §12](SEO.md#12-verifying-in-production): robots.txt, sitemap, llms.txt, `www` redirect, Rich Results Test, Search Console and Bing
+
+## SEO and AI discovery
+
+[SEO.md](SEO.md) documents the full setup:
+
+- **Metadata:** generated from `shared/seo.js`.
+- **Pre-rendering:** every public page is pre-rendered.
+- **Files:** sitemap, `robots.txt` (per environment), `llms.txt`/`llms-full.txt`, the RSS feed and the icons/manifest.
+- **Structured data:** JSON-LD (`Person`, `WebSite`, `ProfilePage`, `BreadcrumbList`, `BlogPosting`).
+- **Domain and DNS:** steps for `thinuka-ransidu.me`.
+- **Search Console and Bing:** setup steps.
+- **Verifying a deployment:** how to check it.
 
 ## Security model
 
@@ -391,7 +408,7 @@ See [ACCESSIBILITY.md](ACCESSIBILITY.md) for existing accessibility support, gui
 ## Checks and tests
 
 ```bash
-npm run check   # eslint . && node --test "tests/*.test.js" && vite build
+npm run check   # eslint . && node --test "tests/*.test.js" && npm run build (incl. pre-rendering)
 ```
 
 The tests run against in-memory Postgres (PGlite), with no network or accounts. They cover:
@@ -403,6 +420,7 @@ The tests run against in-memory Postgres (PGlite), with no network or accounts. 
 - The build never includes drafts.
 - Media: Cloudinary signature compatibility, rejecting forged, oversized or out-of-folder uploads, protecting in-use images, the per-environment folder guard, and keeping the record when Cloudinary deletion fails.
 - Social URL validation, Markdown sanitizing, and that the CSP hash matches the inline script.
+- SEO generators: indexing per environment, robots policies, head tags, JSON-LD validity, sitemap contents and splitting, `llms.txt`, feed and manifest.
 
 ## Troubleshooting
 

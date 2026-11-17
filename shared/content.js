@@ -14,7 +14,8 @@ export const CONTENT_TYPE_KEYS = Object.keys(CONTENT_TYPES)
 /** Slugs a top-level page may not use, because real routes/files live there. */
 export const RESERVED_PAGE_SLUGS = new Set([
   'api', 'assets', 'projects', 'articles', 'admin', 'admin.html', 'index', 'index.html',
-  '404', '404.html', 'sitemap.xml', 'robots.txt', 'favicon.svg', 'og-default.png',
+  '404', '404.html', 'sitemap.xml', 'robots.txt', 'favicon.svg', 'favicon.ico', 'og-image.png',
+  'llms.txt', 'llms-full.txt', 'feed.xml', 'site.webmanifest', 'apple-touch-icon.png',
 ])
 
 export const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
@@ -54,6 +55,7 @@ export const frontmatterSchema = z.object({
   tags: z.array(z.string().trim().min(1).max(40)).max(12).default([]),
   cover: coverSchema.optional(),
   status: z.enum(['draft', 'published']).default('draft'),
+  author: z.string().trim().max(100).optional(), // defaults to the profile name
   // projects only
   order: z.number().int().min(0).max(999).optional(),
   link: httpsUrl.optional(),
@@ -83,7 +85,7 @@ export function parseMarkdownFile(source) {
   return { data, body: source.slice(match[0].length) }
 }
 
-const FIELD_ORDER = ['title', 'slug', 'description', 'date', 'updated', 'status', 'tags', 'order', 'link', 'cover']
+const FIELD_ORDER = ['title', 'slug', 'description', 'date', 'updated', 'author', 'status', 'tags', 'order', 'link', 'cover']
 
 /** Serialize { data, body } back to a Markdown file with stable key order. */
 export function serializeMarkdownFile(data, body) {

@@ -108,11 +108,14 @@
   line-height: var(--lh-hero);
   letter-spacing: -0.01em;
   color: var(--accent);
-  font-size: calc(var(--fs-mega) * var(--fit, 1));
+  /* Width-based estimate (Anton ≈ 0.46em per capital), capped at the type scale.
+     The JS fit factor then corrects it to the exact width. */
+  --est: calc((100vw - 2 * var(--gutter)) / (var(--chars, 7) * 0.46));
+  font-size: min(var(--fs-mega), calc(var(--est) * var(--fit, 1)));
 }
 
 @media (min-width: 640px) {
-  .name { font-size: calc(var(--fs-hero) * var(--fit, 1)); }
+  .name { font-size: min(var(--fs-hero), calc(var(--est) * var(--fit, 1))); }
 }
 
 .nameInner {
@@ -125,18 +128,6 @@
   white-space: nowrap;
   padding-bottom: 0;
   margin-bottom: 0;
-}
-
-/* Measuring copy: same font, natural size, never visible */
-.measure {
-  position: absolute;
-  visibility: hidden;
-  pointer-events: none;
-}
-
-.measure span {
-  position: absolute;
-  white-space: nowrap;
 }
 
 /* ── Scroll cue ──────────────────────────────────────── */

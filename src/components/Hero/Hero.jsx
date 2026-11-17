@@ -13,7 +13,10 @@ const DEFAULT_PHOTO = { url: defaultPhoto, width: 656, height: 1338, alt: '' }
 
 const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
-/** Shrinks the giant name only when its widest line would overflow the viewport. */
+/**
+ * Fine-tunes the giant name to the exact available width. CSS already sizes it
+ * from the letter count (--chars), so this correction is tiny (low CLS).
+ */
 function useFitText(ref, deps) {
   useLayoutEffect(() => {
     const el = ref.current
@@ -21,8 +24,8 @@ function useFitText(ref, deps) {
     const fit = () => {
       el.style.setProperty('--fit', '1')
       const avail = el.clientWidth
-      const widest = Math.max(...[...el.querySelectorAll('[data-fit-line]')].map((l) => l.scrollWidth))
-      el.style.setProperty('--fit', String(widest > avail ? avail / widest : 1))
+      const widest = Math.max(0, ...[...el.querySelectorAll('.rt-line')].map((l) => l.scrollWidth))
+      el.style.setProperty('--fit', String(widest > 0 ? avail / widest : 1))
     }
     fit()
     document.fonts?.ready.then(fit)
@@ -59,7 +62,7 @@ export default function Hero() {
     <section id="hero" className={styles.hero} aria-labelledby="hero-name">
       <div className={styles.top}>
         <RevealText
-          as="h2"
+          as="p"
           className={styles.roles}
           lines={[title, ...roles]}
           play={rolesOn}
@@ -91,14 +94,15 @@ export default function Hero() {
 
       <div className={styles.base} aria-hidden="true" />
 
-      <h1 id="hero-name" ref={nameRef} className={styles.name}>
+      {/* Letters are split for the animation; the label gives the h1 its plain name */}
+      <h1
+        id="hero-name"
+        ref={nameRef}
+        className={styles.name}
+        aria-label={profile.name}
+        style={{ '--chars': Math.max(...nameLines.map((l) => l.length), 1) }}
+      >
         <RevealText mode="letters" lines={nameLines} play={nameOn} stagger={52} lineDelay={240} dur={900} from="100%" className={styles.nameInner} />
-        {/* Hidden copy used only to measure each line's natural width */}
-        <span className={styles.measure} aria-hidden="true">
-          {nameLines.map((l) => (
-            <span key={l} data-fit-line>{l}</span>
-          ))}
-        </span>
       </h1>
 
       <Reveal className={styles.cue} play={cueOn} y={0} dur={600}>

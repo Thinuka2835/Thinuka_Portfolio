@@ -12,6 +12,11 @@
   transition: transform 650ms var(--ease-wipe);
 }
 
+/* Never shown to reduced-motion users, even before the app hydrates */
+@media (prefers-reduced-motion: reduce) {
+  .preloader { display: none; }
+}
+
 .bg {
   position: absolute;
   inset: 0;

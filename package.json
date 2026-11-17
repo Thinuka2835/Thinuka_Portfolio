@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "vercel-build": "node scripts/migrate.mjs --if-configured && vite build",
+    "build": "vite build && vite build --ssr src/entry-server.jsx && node --env-file-if-exists=.env scripts/prerender.mjs",
+    "vercel-build": "node scripts/migrate.mjs --if-configured && npm run build",
     "preview": "vite preview",
     "lint": "eslint .",
     "test": "node --test --test-concurrency=1 \"tests/*.test.js\"",

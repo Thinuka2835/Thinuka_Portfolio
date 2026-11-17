@@ -79,9 +79,10 @@ export default function Navbar() {
       </div>
 
       <nav className={styles.nav} aria-label="Primary">
-        <Link to="/" className={styles.logo} onClick={sectionLink('hero', close)} aria-label={`${profile.name} — home`}>
+        {/* The visible name is the link's accessible name (label-in-name) */}
+        <Link to="/" className={styles.logo} onClick={sectionLink('hero', close)}>
           <span className={styles.badge} aria-hidden="true">{initials(profile.name)}</span>
-          <span className={styles.logoName} aria-hidden="true">{profile.name}</span>
+          <span className={styles.logoName}>{profile.name}</span>
         </Link>
 
         <div className={styles.right}>

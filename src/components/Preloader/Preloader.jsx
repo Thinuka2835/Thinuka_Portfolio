@@ -1,6 +1,7 @@
 // Cinematic intro: counts 0→100 over 2s, fades its labels, then wipes up.
 // Shown only on the first load of the home page (never with reduced motion).
 import { useEffect, useRef, useState } from 'react'
+import { useLocation } from 'react-router'
 import { lockScroll, unlockScroll } from '../../lib/scroll'
 import { prefersReducedMotion } from '../../lib/motion'
 import styles from './Preloader.module.css'
@@ -13,7 +14,7 @@ const WIPE_MS = 650
 /** Hero entrance baseline: count (2000) + ~500ms of the fade/wipe. */
 export const REVEAL_DELAY = 2500
 
-// Decided once per page load, before anything renders
+// Decided once per page load, before anything renders (client only)
 const willShow =
   typeof window !== 'undefined' && window.location.pathname === '/' && !prefersReducedMotion()
 let shown = false
@@ -22,7 +23,10 @@ let shown = false
 export const preloaderActive = () => willShow && !shown
 
 export default function Preloader({ name }) {
-  const [active] = useState(preloaderActive)
+  // Same decision on the server (pre-rendering) and in the browser, so hydration
+  // matches; reduced-motion users skip it in the effect below (and via CSS).
+  const { pathname } = useLocation()
+  const [active] = useState(() => !shown && pathname === '/')
   const [count, setCount] = useState(0)
   const [phase, setPhase] = useState('count') // count | fade | wipe | done
   const counterRef = useRef(null)
@@ -31,6 +35,11 @@ export default function Preloader({ name }) {
   useEffect(() => {
     if (!active) return
     shown = true
+    // Reduced motion: CSS keeps it display:none; don't lock scrolling or animate
+    if (prefersReducedMotion()) {
+      doneRef.current = true
+      return
+    }
     lockScroll()
     window.scrollTo(0, 0)
     const start = performance.now()
@@ -60,7 +69,7 @@ export default function Preloader({ name }) {
   if (!active || phase === 'done') return null
 
   return (
-    <div className={`${styles.preloader} ${phase === 'wipe' ? styles.wipe : ''}`} role="status" aria-label="Loading">
+    <div data-preloader className={`${styles.preloader} ${phase === 'wipe' ? styles.wipe : ''}`} role="status" aria-label="Loading">
       <div className={styles.bg} aria-hidden="true" />
       <p className={`${styles.brand} ${phase !== 'count' ? styles.fade : ''}`}>{name}</p>
       <p ref={counterRef} className={`${styles.counter} ${phase !== 'count' ? styles.fade : ''}`} aria-hidden="true">

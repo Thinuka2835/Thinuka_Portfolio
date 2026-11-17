@@ -69,7 +69,8 @@ export default function Footer() {
 
         <div className={styles.end}>
           <a href="/" className={styles.top} onClick={sectionLink('hero')}>Back to top ↑</a>
-          <p className="label">© {year} {profile.name}. All rights reserved.</p>
+          {/* Year may differ between build time and the visitor's clock */}
+          <p className="label" suppressHydrationWarning>© {year} {profile.name}. All rights reserved.</p>
         </div>
       </div>
     </footer>

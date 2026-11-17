@@ -1,7 +1,7 @@
 import { Link, useParams } from 'react-router'
-import { FiArrowLeft, FiArrowUpRight, FiClock } from 'react-icons/fi'
+import { FiArrowRight, FiArrowUpRight, FiClock } from 'react-icons/fi'
 import Prose from '../components/Prose/Prose'
-import { findEntry, formatDate, useEntryHtml } from '../lib/content'
+import { entriesOfType, findEntry, formatDate, useEntryHtml } from '../lib/content'
 import { useSiteData } from '../lib/siteData'
 import { useDocumentMeta } from '../lib/seo'
 import { cldSrcSet, cldUrl } from '../../shared/cloudinary.js'
@@ -9,11 +9,13 @@ import { externalProps } from '../lib/links'
 import NotFoundPage from './NotFoundPage'
 import styles from './EntryPage.module.css'
 
-const BACK = {
-  projects: { to: '/#projects', label: 'All projects' },
-  articles: { to: '/articles', label: 'All articles' },
-  pages: { to: '/', label: 'Home' },
+// Breadcrumb trail (mirrors the BreadcrumbList structured data from shared/seo.js)
+const PARENT = {
+  projects: { href: '/#projects', label: 'Projects' },
+  articles: { href: '/articles', label: 'Articles' },
+  pages: null,
 }
+const MORE_LABEL = { projects: 'More projects', articles: 'More articles', pages: null }
 
 export default function EntryPage({ type }) {
   const { slug } = useParams()
@@ -24,13 +26,24 @@ export default function EntryPage({ type }) {
 
   if (!entry) return <NotFoundPage />
 
-  const back = BACK[type]
+  const parent = PARENT[type]
+  const related = MORE_LABEL[type] ? entriesOfType(type).filter((e) => e.slug !== slug).slice(0, 3) : []
+  const author = entry.author || profile.name
+
   return (
     <article className={`page ${styles.page}`}>
       <div className={`container ${styles.inner}`}>
-        <Link to={back.to} className={styles.back}>
-          <FiArrowLeft aria-hidden="true" /> {back.label}
-        </Link>
+        <nav aria-label="Breadcrumb" className={styles.breadcrumb}>
+          <ol>
+            <li><Link to="/">Home</Link></li>
+            {parent && (
+              <li>
+                {parent.href.startsWith('/#') ? <a href={parent.href}>{parent.label}</a> : <Link to={parent.href}>{parent.label}</Link>}
+              </li>
+            )}
+            <li aria-current="page">{entry.title}</li>
+          </ol>
+        </nav>
 
         <header className={styles.header}>
           {type !== 'pages' && <p className={styles.eyebrow}>{type === 'projects' ? 'Project' : 'Article'}</p>}
@@ -38,8 +51,8 @@ export default function EntryPage({ type }) {
           <p className={styles.description}>{entry.description}</p>
           {(entry.date || type !== 'pages') && (
             <p className={styles.meta}>
+              {type === 'articles' && <span>By {author}</span>}
               {entry.date && <time dateTime={entry.date}>{formatDate(entry.date)}</time>}
-              {entry.date && type !== 'pages' && <span aria-hidden="true">·</span>}
               {type !== 'pages' && (
                 <span>
                   <FiClock aria-hidden="true" /> {entry.readingTime} min read
@@ -62,7 +75,7 @@ export default function EntryPage({ type }) {
             className={styles.cover}
             src={cldUrl(entry.cover.url, { width: 1400 })}
             srcSet={cldSrcSet(entry.cover.url, [600, 900, 1400, 1800], { maxWidth: entry.cover.width })}
-            sizes="(min-width: 1000px) 920px, 100vw"
+            sizes="(min-width: 1000px) 62rem, 100vw"
             alt={entry.cover.alt || ''}
             width={entry.cover.width}
             height={entry.cover.height}
@@ -82,7 +95,7 @@ export default function EntryPage({ type }) {
               <span />
             </div>
           ) : (
-            <Prose html={html} />
+            <Prose html={html} entryKey={`${type}/${slug}`} />
           )}
         </div>
 
@@ -90,6 +103,23 @@ export default function EntryPage({ type }) {
           <a href={entry.link} className="btn btn--primary" {...externalProps(entry.link)}>
             View project <FiArrowUpRight aria-hidden="true" />
           </a>
+        )}
+
+        {related.length > 0 && (
+          <nav aria-labelledby="related-title" className={styles.related}>
+            <h2 id="related-title" className={styles.relatedTitle}>{MORE_LABEL[type]}</h2>
+            <ul>
+              {related.map((r) => (
+                <li key={r.slug}>
+                  <Link to={r.path} className={styles.relatedLink}>
+                    <span className={styles.relatedName}>{r.title}</span>
+                    <span className={styles.relatedDesc}>{r.description}</span>
+                    <FiArrowRight aria-hidden="true" className={styles.relatedArrow} />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
         )}
       </div>
     </article>

@@ -1,10 +1,12 @@
+import { createHash } from 'node:crypto'
+import path from 'node:path'
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import { contentPlugin } from './vite/content-plugin.js'
 import { serverPlugin } from './vite/server-plugin.js'
 
-// Site data for the HTML (home meta tags + first-paint data). In dev it is
-// loaded through Vite's SSR graph so it shares the API's database connection.
+// Site data for the HTML (first-paint data). In dev it is loaded through
+// Vite's SSR graph so it shares the API's database connection.
 async function loadSiteData(server) {
   let timer
   try {
@@ -25,7 +27,16 @@ async function loadSiteData(server) {
   }
 }
 
-export default defineConfig(({ mode }) => {
+// Deterministic CSS-module class names, so the server-rendered HTML
+// (pre-rendering) and the client bundle always agree on class names.
+function scopedName(name, filename) {
+  const rel = path.relative(process.cwd(), filename).replace(/\\/g, '/')
+  const base = path.basename(filename).split('.')[0]
+  const hash = createHash('sha1').update(`${rel}:${name}`).digest('base64url').slice(0, 5)
+  return `${base}_${name}_${hash}`
+}
+
+export default defineConfig(({ mode, isSsrBuild }) => {
   // Make .env values available to the server code that runs inside Vite
   // (API in dev/preview, site data at build). Only VITE_* reach the browser.
   const env = loadEnv(mode, process.cwd(), '')
@@ -33,12 +44,18 @@ export default defineConfig(({ mode }) => {
 
   return {
     base: '/',
-    plugins: [react(), contentPlugin({ loadSiteData }), serverPlugin()],
-    build: {
-      rollupOptions: {
-        // Separate admin entry: none of the admin code ships in the public bundle
-        input: { main: 'index.html', admin: 'admin.html' },
-      },
+    plugins: [react(), contentPlugin({ loadSiteData, ssr: isSsrBuild }), serverPlugin()],
+    css: {
+      modules: { generateScopedName: scopedName },
     },
+    build: isSsrBuild
+      ? // `vite build --ssr src/entry-server.jsx` — used only by scripts/prerender.mjs
+        { outDir: 'dist/.ssr', emptyOutDir: true, copyPublicDir: false }
+      : {
+          rollupOptions: {
+            // Separate admin entry: none of the admin code ships in the public bundle
+            input: { main: 'index.html', admin: 'admin.html' },
+          },
+        },
   }
 })

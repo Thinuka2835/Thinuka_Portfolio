@@ -9,6 +9,7 @@ import ArticlesPage from './pages/ArticlesPage'
 import NotFoundPage from './pages/NotFoundPage'
 import { useSiteData } from './lib/siteData'
 import { applyAdaptiveGrid } from './lib/motion'
+import { initAnalytics, trackPageView } from './lib/analytics'
 import { destroyLenis, initLenis, scrollToSection, scrollToTop } from './lib/scroll'
 
 /** Scroll to the top on page changes, or to #section when the URL has a hash. */
@@ -23,6 +24,11 @@ function ScrollManager() {
     }
     scrollToTop()
   }, [pathname, hash])
+  // Analytics page view after the page has set its title (no-op unless GA is configured)
+  useEffect(() => {
+    const t = setTimeout(() => trackPageView(pathname), 0)
+    return () => clearTimeout(t)
+  }, [pathname])
   return null
 }
 
@@ -31,6 +37,7 @@ export default function App() {
 
   useEffect(() => {
     initLenis()
+    initAnalytics()
     applyAdaptiveGrid()
     window.addEventListener('resize', applyAdaptiveGrid)
     return () => {

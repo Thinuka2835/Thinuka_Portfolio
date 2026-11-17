@@ -5,7 +5,8 @@ import { rewrite } from '@vercel/functions/middleware'
 import { ADMIN_RESPONSE_HEADERS, ADMIN_SHELL, resolveAdminRoute } from './server/adminRoute.js'
 
 export const config = {
-  matcher: ['/((?!api/|assets/|favicon\\.svg|og-default\\.png|robots\\.txt|sitemap\\.xml).*)'],
+  // Everything except the API and hashed assets (other static files just pass through)
+  matcher: ['/((?!api/|assets/).*)'],
 }
 
 export default function middleware(request) {

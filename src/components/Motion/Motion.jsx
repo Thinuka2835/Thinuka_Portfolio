@@ -24,7 +24,8 @@ export function Reveal({ as: Tag = 'div', play, y = 16, scale = 1, delay = 0, du
  *  mode="lines"   words rise together per rendered line (lines measured from layout)
  *  mode="letters" explicit `lines`, letter-by-letter
  *  mode="words"   word-by-word, small rise (replay by changing `key`)
- * Screen readers get the plain text (visually hidden); the split spans are aria-hidden.
+ * Lines/words keep real text (readable by crawlers and screen readers);
+ * letters mode is aria-hidden and its parent heading carries an aria-label.
  */
 export function RevealText({
   as: Tag = 'span',
@@ -85,9 +86,9 @@ export function RevealText({
     return () => window.removeEventListener('resize', measure)
   }, [mode, lines, text, delay, st, on])
 
-  const label = text ?? (lines ? lines.join(' ') : undefined)
   let content
   if (lines) {
+    // A space between block lines keeps the plain text readable for crawlers/copy-paste
     content = lines.map((line, li) =>
       mode === 'letters' ? (
         <span key={li} className="rt-line">
@@ -102,7 +103,7 @@ export function RevealText({
           <span className="rt-unit" style={{ '--d': `${delay + li * st}ms` }}>{line}</span>
         </span>
       )
-    )
+    ).flatMap((node, i) => (i ? [' ', node] : [node]))
   } else {
     const words = String(text).split(/\s+/).filter(Boolean)
     content = words.map((w, i) => (
@@ -118,9 +119,10 @@ export function RevealText({
   }
 
   return (
-    <Tag ref={ref} className={`${on ? 'is-in' : ''} ${className}`} style={vars} {...rest}>
-      <span className="visually-hidden">{label}</span>
-      <span aria-hidden="true">{content}</span>
+    // Text appears once in the DOM (no hidden duplicate). Letter-split text is
+    // hidden from assistive tech — label its heading instead (see Hero).
+    <Tag ref={ref} className={`${on ? 'is-in' : ''} ${className}`} style={vars} aria-hidden={mode === 'letters' || undefined} {...rest}>
+      {content}
     </Tag>
   )
 }
