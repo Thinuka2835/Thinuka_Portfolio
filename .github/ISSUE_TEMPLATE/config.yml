@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability (privately)
+    url: https://github.com/Thinuka2835/Thinuka_Portfolio/security/advisories/new
+    about: Please don't open a public issue for security problems. Use GitHub's private vulnerability reporting (see SECURITY.md).
+  - name: Report abusive behavior
+    url: https://github.com/Thinuka2835/Thinuka_Portfolio/blob/main/CODE_OF_CONDUCT.md#reporting
+    about: How to report conduct problems privately.

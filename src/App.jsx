@@ -1,37 +1,54 @@
 import { useEffect } from 'react'
+import { MotionConfig } from 'framer-motion'
+import { Route, Routes, useLocation } from 'react-router'
 import Cursor from './components/Cursor/Cursor'
 import Navbar from './components/Navbar/Navbar'
-import Hero from './components/Hero/Hero'
-import Ticker from './components/Ticker/Ticker'
-import About from './components/About/About'
-import Stats from './components/Stats/Stats'
-import Tools from './components/Tools/Tools'
-import Gallery from './components/Gallery/Gallery'
-import Projects from './components/Projects/Projects'
-import Contact from './components/Contact/Contact'
 import Footer from './components/Footer/Footer'
-import { initLenis } from './lib/scroll'
+import HomePage from './pages/HomePage'
+import EntryPage from './pages/EntryPage'
+import ArticlesPage from './pages/ArticlesPage'
+import NotFoundPage from './pages/NotFoundPage'
+import { destroyLenis, initLenis, scrollToSection, scrollToTop } from './lib/scroll'
+
+/** Scroll to the top on page changes, or to #section when the URL has a hash. */
+function ScrollManager() {
+  const { pathname, hash } = useLocation()
+  useEffect(() => {
+    const id = decodeURIComponent(hash.slice(1))
+    if (id) {
+      // Wait a frame so the target section has rendered
+      const raf = requestAnimationFrame(() => scrollToSection(id, { immediate: true }) || scrollToTop())
+      return () => cancelAnimationFrame(raf)
+    }
+    scrollToTop()
+  }, [pathname, hash])
+  return null
+}
 
 export default function App() {
   useEffect(() => {
     initLenis()
+    return destroyLenis
   }, [])
 
   return (
-    <>
+    // reducedMotion="user" turns off transform animations for users who ask for it
+    <MotionConfig reducedMotion="user">
+      <a href="#main" className="skip-link">Skip to content</a>
       <Cursor />
       <Navbar />
-      <main>
-        <Hero />
-        <Ticker />
-        <About />
-        <Stats />
-        <Tools />
-        <Gallery />
-        <Projects />
-        <Contact />
+      <ScrollManager />
+      <main id="main" tabIndex={-1}>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/projects/:slug" element={<EntryPage type="projects" />} />
+          <Route path="/articles" element={<ArticlesPage />} />
+          <Route path="/articles/:slug" element={<EntryPage type="articles" />} />
+          <Route path="/:slug" element={<EntryPage type="pages" />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
       </main>
       <Footer />
-    </>
+    </MotionConfig>
   )
 }

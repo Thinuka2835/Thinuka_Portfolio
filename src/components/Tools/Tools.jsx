@@ -1,60 +1,48 @@
 import { motion } from 'framer-motion'
+import { FiTool } from 'react-icons/fi'
 import {
-  SiJira, SiConfluence, SiTrello, SiAsana,
-  SiSlack, SiNotion, SiMiro, SiClickup,
+  SiJira, SiConfluence, SiTrello, SiAsana, SiSlack, SiNotion, SiMiro, SiClickup,
+  SiGithub, SiGitlab, SiFigma, SiGooglesheets, SiGoogledrive, SiGooglecalendar,
+  SiAirtable, SiLinear, SiZoom, SiBasecamp,
 } from 'react-icons/si'
-import { tools } from '../../data/personalDetails'
+import { useSiteData } from '../../lib/siteData'
+import { fadeUp, revealOnView, stagger } from '../../lib/motion'
+import SectionHeader from '../SectionHeader/SectionHeader'
 import styles from './Tools.module.css'
 
-// Add new icons here (and to the import above) when adding tools with a new iconKey in personalDetails.js
+// Every key in shared/toolIcons.js must be imported BY NAME and listed here
+// (a test enforces it). Never `import * as SiIcons` — it defeats tree-shaking
+// and once bloated the bundle to 5MB+.
 const ICONS = {
-  SiJira, SiConfluence, SiTrello, SiAsana,
-  SiSlack, SiNotion, SiMiro, SiClickup,
-}
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0 },
+  SiJira, SiConfluence, SiTrello, SiAsana, SiSlack, SiNotion, SiMiro, SiClickup,
+  SiGithub, SiGitlab, SiFigma, SiGooglesheets, SiGoogledrive, SiGooglecalendar,
+  SiAirtable, SiLinear, SiZoom, SiBasecamp,
 }
 
 export default function Tools() {
+  const { tools } = useSiteData()
+  if (!tools.length) return null
   return (
-    <section id="tools" className={styles.tools}>
-      <motion.p
-        className={styles.label}
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-      >
-        Tools & Platforms I Use
-      </motion.p>
-
-      <motion.div
-        className={styles.grid}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: '-60px' }}
-        transition={{ staggerChildren: 0.08 }}
-      >
-        {tools.map((tool) => {
-          const IconComponent = ICONS[tool.iconKey]
-          return (
-            <motion.div
-              key={tool.name}
-              className={styles.card}
-              variants={fadeUp}
-              whileHover={{ scale: 1.04 }}
-            >
-              {IconComponent
-                ? <IconComponent className={styles.icon} />
-                : <span className={styles.icon}>⚙️</span>
-              }
-              <span className={styles.toolName}>{tool.name}</span>
-            </motion.div>
-          )
-        })}
-      </motion.div>
+    <section id="tools" className="section" aria-labelledby="tools-title">
+      <div className="container">
+        <SectionHeader
+          id="tools-title"
+          eyebrow="Toolkit"
+          title="Tools & platforms I use"
+          intro="The stack I rely on to plan work, keep teams aligned and ship on schedule."
+        />
+        <motion.ul className={styles.grid} variants={stagger(0.06)} {...revealOnView}>
+          {tools.map((tool) => {
+            const Icon = ICONS[tool.iconKey] ?? FiTool
+            return (
+              <motion.li key={tool.id} className={styles.card} variants={fadeUp}>
+                <Icon className={styles.icon} aria-hidden="true" />
+                <span className={styles.name}>{tool.name}</span>
+              </motion.li>
+            )
+          })}
+        </motion.ul>
+      </div>
     </section>
   )
 }

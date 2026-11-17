@@ -1,0 +1,158 @@
+/* Long-form Markdown typography (public pages + admin preview). */
+.prose {
+  --prose-max: 72ch;
+  max-width: var(--prose-max);
+  font-size: 1.08rem;
+  line-height: 1.8;
+  color: var(--fg);
+  overflow-wrap: break-word;
+}
+
+.prose > * + * {
+  margin-top: 1.25em;
+}
+
+.prose :global(h1),
+.prose :global(h2),
+.prose :global(h3),
+.prose :global(h4) {
+  font-family: var(--font-display);
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  margin-top: 2em;
+  scroll-margin-top: calc(var(--nav-h) + 1rem);
+}
+
+.prose :global(h1) { font-size: 2rem; }
+.prose :global(h2) { font-size: 1.6rem; }
+.prose :global(h3) { font-size: 1.3rem; }
+.prose :global(h4) { font-size: 1.1rem; }
+.prose > :global(:first-child) { margin-top: 0; }
+
+.prose :global(p),
+.prose :global(li) {
+  color: var(--fg);
+}
+
+.prose :global(a) {
+  color: var(--accent-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1.5px;
+}
+
+.prose :global(a:hover) {
+  text-decoration-thickness: 2.5px;
+}
+
+.prose :global(strong) {
+  font-weight: 650;
+}
+
+.prose :global(ul),
+.prose :global(ol) {
+  padding-left: 1.4em;
+}
+
+.prose :global(li + li) {
+  margin-top: 0.4em;
+}
+
+.prose :global(li::marker) {
+  color: var(--accent-text);
+}
+
+.prose :global(blockquote) {
+  padding: 0.4em 0 0.4em 1.2em;
+  border-left: 3px solid var(--accent);
+  color: var(--fg-muted);
+  font-style: italic;
+}
+
+.prose :global(hr) {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin-block: 2.5em;
+}
+
+.prose :global(img) {
+  height: auto;
+  border-radius: 12px;
+  margin-inline: auto;
+}
+
+/* Tables scroll inside their own box on small screens */
+.prose :global(table) {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: 0.95em;
+}
+
+.prose :global(th),
+.prose :global(td) {
+  padding: 0.55em 0.9em;
+  border: 1px solid var(--line);
+  text-align: left;
+}
+
+.prose :global(th) {
+  background: var(--surface-2);
+  font-weight: 600;
+}
+
+/* Code */
+.prose :global(code) {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+}
+
+.prose :global(:not(pre) > code) {
+  padding: 0.15em 0.4em;
+  border-radius: 6px;
+  background: var(--surface-2);
+}
+
+.prose :global(pre) {
+  padding: 1.1em 1.25em;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--code-bg);
+  overflow-x: auto;
+  line-height: 1.6;
+  font-size: 0.92em;
+}
+
+/* Syntax highlighting (highlight.js classes) — colours tuned for both themes */
+.prose :global(.hljs-comment),
+.prose :global(.hljs-quote) { color: var(--fg-muted); font-style: italic; }
+.prose :global(.hljs-keyword),
+.prose :global(.hljs-selector-tag),
+.prose :global(.hljs-built_in) { color: var(--hl-keyword); }
+.prose :global(.hljs-string),
+.prose :global(.hljs-attr),
+.prose :global(.hljs-template-tag) { color: var(--hl-string); }
+.prose :global(.hljs-number),
+.prose :global(.hljs-literal),
+.prose :global(.hljs-type) { color: var(--hl-number); }
+.prose :global(.hljs-title),
+.prose :global(.hljs-section),
+.prose :global(.hljs-function) { color: var(--hl-title); }
+.prose :global(.hljs-variable),
+.prose :global(.hljs-params) { color: var(--fg); }
+
+:global(:root[data-theme='dark']) .prose,
+:global(:root:not([data-theme])) .prose {
+  --hl-keyword: #ff8a65;
+  --hl-string: #9ece6a;
+  --hl-number: #e0af68;
+  --hl-title: #7aa2f7;
+}
+
+:global(:root[data-theme='light']) .prose {
+  --hl-keyword: #b3261e;
+  --hl-string: #2e7d32;
+  --hl-number: #8a5a00;
+  --hl-title: #1f4fbf;
+}

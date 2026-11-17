@@ -12,6 +12,15 @@ dist
 dist-ssr
 *.local
 
+# Secrets — never commit real environment values (.env.example is the template)
+.env
+.env.*
+!.env.example
+.vercel
+
+# Local embedded database (PGlite)
+.data
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

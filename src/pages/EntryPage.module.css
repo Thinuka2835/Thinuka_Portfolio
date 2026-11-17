@@ -1,0 +1,126 @@
+.page {
+  background: var(--bg);
+}
+
+.inner {
+  max-width: calc(920px + var(--gutter) * 2);
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 44px;
+  margin-bottom: 1.5rem;
+  font-family: var(--font-display);
+  font-weight: 500;
+  color: var(--fg-muted);
+  text-decoration: none;
+}
+
+.back:hover {
+  color: var(--accent-text);
+}
+
+.header {
+  margin-bottom: 2.25rem;
+}
+
+.eyebrow {
+  margin-bottom: 0.75rem;
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 5.5vw, 3.6rem);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.description {
+  max-width: 62ch;
+  margin-top: 1rem;
+  font-size: clamp(1.05rem, 1.8vw, 1.25rem);
+  line-height: 1.6;
+  color: var(--fg-muted);
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.75rem;
+  margin-top: 1.25rem;
+  font-size: 0.92rem;
+  color: var(--fg-muted);
+}
+
+.meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 1.1rem;
+  list-style: none;
+}
+
+.tags li {
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  font-size: 0.82rem;
+  color: var(--fg-muted);
+}
+
+.cover {
+  width: 100%;
+  height: auto;
+  max-height: 520px;
+  object-fit: cover;
+  border-radius: 20px;
+  margin-bottom: 2.5rem;
+  background: var(--surface-2);
+}
+
+.body {
+  margin-bottom: 2.5rem;
+}
+
+.error {
+  padding: 1rem 1.2rem;
+  border-radius: 12px;
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.skeleton {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.skeleton span {
+  height: 1rem;
+  border-radius: 6px;
+  background: var(--surface-2);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.skeleton span:nth-child(2) { width: 92%; }
+.skeleton span:nth-child(3) { width: 70%; }
+
+@keyframes pulse {
+  50% { opacity: 0.5; }
+}

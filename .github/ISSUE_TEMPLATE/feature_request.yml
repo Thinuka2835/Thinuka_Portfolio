@@ -1,0 +1,41 @@
+name: Feature request
+description: Suggest an improvement to the site, admin panel or tooling.
+title: "feat: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This is a personal portfolio, so changes to its written content, projects or photos are the owner's call.
+        Ideas for usability, accessibility, performance and tooling are very welcome.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: Describe the need rather than only the solution.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you considered
+  - type: checkboxes
+    id: impact
+    attributes:
+      label: Considerations
+      options:
+        - label: Works in both dark and light themes
+        - label: Works on mobile and is keyboard accessible
+        - label: Doesn't expose any secret or admin-only data publicly
+  - type: checkboxes
+    id: help
+    attributes:
+      label: Contribution
+      options:
+        - label: I'd like to open a pull request for this (after it's agreed)

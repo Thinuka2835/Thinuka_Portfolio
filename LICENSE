@@ -1,0 +1,17 @@
+Copyright (c) 2026 Thinuka. All rights reserved.
+
+This repository and everything in it — including the source code, design,
+styles, text, Markdown content, photographs (including the portrait in
+src/assets/) and other media — are the exclusive property of the copyright
+holder.
+
+No license is granted. Except as expressly permitted by the copyright holder
+in writing, you may not use, copy, modify, merge, publish, distribute,
+sublicense, sell, or create derivative works from any part of this repository.
+
+Because the repository is public on GitHub, GitHub's Terms of Service allow
+users to view and fork it on GitHub. That permission does not extend to any
+other use.
+
+Third-party software used by this project (listed in package.json) is licensed
+under its own terms and is not covered by this notice.

@@ -1,51 +1,52 @@
 import { motion } from 'framer-motion'
-import { FiArrowRight } from 'react-icons/fi'
-import { personal } from '../../data/personalDetails'
-import { scrollToSection } from '../../lib/scroll'
+import { FiArrowRight, FiDownload } from 'react-icons/fi'
+import { useSiteData } from '../../lib/siteData'
+import { useSectionLink } from '../../lib/scroll'
+import { hasLink, externalProps } from '../../lib/links'
+import { fadeUp, revealOnView, stagger } from '../../lib/motion'
 import styles from './About.module.css'
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0 },
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+/** Wraps every occurrence of `word` in the quote with a highlight. */
+function HighlightedQuote({ quote, word }) {
+  if (!word) return quote
+  const parts = quote.split(new RegExp(`(${escapeRegExp(word)})`, 'i'))
+  return parts.map((part, i) =>
+    part.toLowerCase() === word.toLowerCase() ? <mark key={i} className={styles.highlight}>{part}</mark> : part
+  )
 }
 
 export default function About() {
-  // Highlight the specified word in the quote
-  const renderQuote = () => {
-    const { quote, highlightedWord } = personal
-    if (!highlightedWord) return quote
-    const parts = quote.split(new RegExp(`(${highlightedWord})`, 'i'))
-    return parts.map((part, i) =>
-      part.toLowerCase() === highlightedWord.toLowerCase()
-        ? <span key={i} className={styles.highlight}>{part}</span>
-        : part
-    )
-  }
+  const { profile } = useSiteData()
+  const sectionLink = useSectionLink()
+  const { quote, highlightedWord, bio, resumeUrl } = profile
 
   return (
-    <section id="about" className={styles.about}>
-      <motion.div
-        className={styles.inner}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: '-80px' }}
-        transition={{ staggerChildren: 0.15 }}
-      >
-        <motion.h2 className={styles.quote} variants={fadeUp}>
-          {renderQuote()}
-        </motion.h2>
+    <section id="about" className={`section section--alt ${styles.about}`} aria-labelledby="about-title">
+      <motion.div className={`container ${styles.inner}`} variants={stagger(0.12)} {...revealOnView}>
+        <div>
+          <motion.p className={styles.eyebrow} variants={fadeUp}>
+            <span className={styles.bar} aria-hidden="true" />
+            About me
+          </motion.p>
+          <motion.h2 id="about-title" className={styles.quote} variants={fadeUp}>
+            <HighlightedQuote quote={quote} word={highlightedWord} />
+          </motion.h2>
+        </div>
 
-        <motion.p className={styles.bio} variants={fadeUp}>
-          {personal.bio}
-        </motion.p>
-
-        <motion.div variants={fadeUp}>
-          <a href="#projects" className="accent-btn" onClick={(e) => {
-            e.preventDefault()
-            scrollToSection('projects')
-          }}>
-            View Projects <FiArrowRight />
-          </a>
+        <motion.div className={styles.body} variants={fadeUp}>
+          <p className={styles.bio}>{bio}</p>
+          <div className={styles.actions}>
+            <a href="/#projects" className="btn btn--primary" onClick={sectionLink('projects')}>
+              See my work <FiArrowRight aria-hidden="true" />
+            </a>
+            {hasLink(resumeUrl) && (
+              <a href={resumeUrl} className="btn btn--ghost" {...externalProps(resumeUrl)}>
+                <FiDownload aria-hidden="true" /> Download résumé
+              </a>
+            )}
+          </div>
         </motion.div>
       </motion.div>
     </section>

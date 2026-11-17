@@ -4,43 +4,39 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-- `npm run dev` — start the Vite dev server
-- `npm run build` — production build to `dist/`
-- `npm run preview` — preview the production build locally
-- `npm run deploy` — build and publish `dist/` to GitHub Pages via `gh-pages` (runs the build first via `predeploy`)
+- `npm run dev` — Vite dev server; the API (`/api/*`) and admin route are mounted by `vite/server-plugin.js`
+- `npm run build` — production build to `dist/` (prerendered route HTML, 404.html, sitemap.xml, robots.txt)
+- `npm run preview` — serve `dist/` with the API, admin routing and `vercel.json` headers (closest to production)
+- `npm run lint` / `npm test` / `npm run check` (lint + test + build)
+- `npm run db:migrate`, `npm run db:seed`, `npm run admin -- <create|set-password|disable|enable|revoke-sessions|list> --email …`
+- Deployed on Vercel: `npm run vercel-build` = migrations (`--if-configured`) + build. GitHub Pages is no longer used.
 
-There is no test suite or linter configured in this project.
+The app is JSX, not TSX; `tsconfig.json` exists only for editor tooling. Tests use Node's runner with in-memory PGlite (`tests/helpers.js` sets env and calls the Hono app via `app.request`) — no network or accounts needed. For local runs without Neon use `DATABASE_URL=pglite:./.data/pglite`. PGlite is single-process: don't run a build while a preview/dev server holds the same PGlite directory (it hangs).
 
 ## Architecture
 
-Single-page React 19 + Vite site. There is no router — it's one long scrolling page assembled in [src/App.jsx](src/App.jsx) from section components, navigated via anchor-link clicks (`#hero`, `#about`, `#tools`, `#gallery`, `#projects`, `#contact`) that scroll via [src/lib/scroll.js](src/lib/scroll.js) rather than raw `scrollIntoView`.
+- **Public site** (`index.html` → `src/main.jsx`): React 19 + React Router. Home page is section components; `/projects/:slug`, `/articles[/:slug]`, `/:slug` render Markdown entries.
+- **Admin** (`admin.html` → `src/admin/`): separate bundle, served only at `ADMIN_PATH` by `middleware.js` (Vercel) / `vite/server-plugin.js` (local); `/admin.html` itself 404s. Route rules live in `server/adminRoute.js`. The admin derives its router basename from the URL — `ADMIN_PATH` is never compiled into code. Never link the admin from public UI or the sitemap.
+- **API** (`server/app.js`, Hono, deployed as the single function `api/index.js` via the `/api/(.*)` rewrite): `/api/public/site` plus `/api/admin/*`. Every admin route except `auth/login`/`auth/logout` is behind `requireAdmin`; every non-GET passes `requireSameOrigin` (Origin check + JSON-only). Validate bodies with zod schemas in `server/validation.js`; SQL always uses `$n` params. Throw `HttpError` helpers from `server/errors.js`; `ConfigError` → 503 "not configured" (never fake success when an integration is missing).
+- **Data split**: Neon = structured data (profile in `site_settings`, `social_links`, `stats`, `tools`, `ticker_items`, `certifications`, `media`, auth tables, `content_events`). Markdown in `content/{projects,articles,pages}` = long-form content and its source of truth. `src/data/personalDetails.js` = defaults (seed + no-DB fallback, via `shared/siteDefaults.js`).
+- **Markdown**: `shared/content.js` (frontmatter schema/parse/serialize) and `shared/markdown.js` (sanitizing render pipeline) are shared by build, server and admin preview. `vite/content-plugin.js` renders only `status: published` files into `virtual:content` and writes per-route `<head>` meta at build. Admin saves go through `server/services/contentStore.js`: `github` (atomic Git Data API commits with blob-SHA conflict checks → triggers a Vercel deploy) or `fs` (local only; refused on Vercel). Drafts are refused while `CONTENT_ALLOW_DRAFTS` is false (the repo is public).
+- **Images**: Cloudinary signed direct uploads (`server/services/cloudinary.js`); the server verifies Cloudinary's response signature before storing. Deletion is blocked while an image is used (cert FK, profile hero, any Markdown) and for images outside this environment's `CLOUDINARY_FOLDER`. Use `shared/cloudinary.js` (`cldUrl`/`cldSrcSet`) for delivery.
+- **Contact**: EmailJS browser SDK with public `VITE_EMAILJS_*` only (`src/lib/emailjs.js`), optional reCAPTCHA v2. Success is shown only on HTTP 200.
+- **Site data on the client**: `src/lib/siteData.jsx` reads the JSON embedded in the HTML at build time, then refreshes from `/api/public/site` (browser `no-cache`; Vercel CDN caches 60s via `CDN-Cache-Control`).
 
-The app is JSX, not TSX. `tsconfig.json` exists only to support editor tooling (`vite/client` types) — there's no `tsc` build step or type checking in the pipeline.
+## Styling & UI conventions
 
-### Content is data-driven from one file
+- Tokens/themes in `src/styles/tokens.css` (shared with admin). Themes are `html[data-theme=dark|light]`, set before paint by the inline script from `vite/theme-init.js`. **If you change that script, update its sha256 in `vercel.json`'s CSP** (`npm test` prints the expected hash). Use `--accent-text` for accent-coloured text and `--accent-strong` for filled buttons (contrast); `--accent` is decorative only.
+- Public components: `<Name>.jsx` + `<Name>.module.css`. Global utilities: `.container`, `.section`, `.section--alt`, `.page`, `.btn` (+ `--primary/--ghost/--danger/--sm`), `.visually-hidden`, `.skip-link`. Import `index.css` before `App` in `main.jsx`.
+- Admin styles are global `a-*` classes in `src/admin/admin.css`; generic list CRUD is `src/admin/components/CollectionManager.jsx`. The `Dialog` in `src/admin/ui.jsx` ignores close/cancel events bubbling from nested dialogs — keep that.
+- Framer Motion owns `transform` on animated elements — position with the CSS `translate` property instead.
+- In-page section links use `useSectionLink()` from `src/lib/scroll.js` (works from any route); scroll offset comes from `.section { scroll-margin-top }`. Modals/menus use `lockScroll()/unlockScroll()`.
+- Tool icons: keys in `shared/toolIcons.js` must be imported **by name** in `src/components/Tools/Tools.jsx` (a test enforces it). Never `import * as` from react-icons.
+- The custom cursor only enables on `(hover: hover) and (pointer: fine)` and adds `html.has-custom-cursor`.
 
-All personal/site content — name, bio, contact details, skills ticker, tools list, projects, stats, gallery/certifications — lives in [src/data/personalDetails.js](src/data/personalDetails.js) as six exports: `personal`, `ticker`, `tools`, `projects`, `stats`, `gallery`. Components read from here rather than hardcoding copy; update this file to change site content instead of editing components. Placeholder values (email, phone, location, GitHub/LinkedIn URLs, example projects, certification entries) are marked with `TODO` comments and still need real content. `resumeLink` is defined but not yet wired into any component. Each `gallery` item's `image` is `null` by default (renders an icon placeholder in [Gallery.jsx](src/components/Gallery/Gallery.jsx)); set it to an imported image path to show a real certificate/photo instead.
+## Adding things
 
-### Smooth scroll (Lenis)
-
-[src/lib/scroll.js](src/lib/scroll.js) initializes a singleton [Lenis](https://github.com/darkroomengineering/lenis) instance (called once from `App.jsx`) that drives inertia-smoothed scrolling for the whole page. Anchor-nav components call its exported `scrollToSection(id)` instead of `element.scrollIntoView(...)` directly — use the same helper for any new nav link so scrolling stays consistent. `src/index.css` disables native CSS `scroll-behavior: smooth` on `html.lenis` so it doesn't fight Lenis's JS-driven scroll.
-
-### Contact form is UI-only
-
-[src/components/Contact/Contact.jsx](src/components/Contact/Contact.jsx) has a client-validated form (name/email/message) but no backend wired up — submitting just flips local state to a success message (see the `TODO` in `handleSubmit`). This is a static site with no server, so real submission needs a third-party form endpoint (e.g. Formspree, EmailJS) wired into that handler.
-
-### Component structure
-
-Each section under `src/components/<Name>/` pairs a `<Name>.jsx` with a co-located `<Name>.module.css` (CSS Modules — the only global classes are the utilities defined in [src/index.css](src/index.css): `.container`, `.section-tag`, `.accent-btn`). Design tokens (colors, fonts) are CSS custom properties on `:root` in `src/index.css`.
-
-### Tools icons — avoid wildcard react-icons imports
-
-[src/components/Tools/Tools.jsx](src/components/Tools/Tools.jsx) maps each `tools[].iconKey` (e.g. `"SiReact"`) to a `react-icons` component through a local `ICONS` lookup object. When adding a tool with a new icon, import it by name from `react-icons/si` and add it to both the import list and the `ICONS` map — do **not** `import * as SiIcons from 'react-icons/si'` and index into it dynamically. That pattern defeats tree-shaking (the wildcard pulls in every icon in the set) and previously bloated the production JS bundle to over 5MB (2MB gzipped) instead of the current ~340KB (109KB gzipped).
-
-### Custom cursor
-
-[src/components/Cursor/Cursor.jsx](src/components/Cursor/Cursor.jsx) renders a custom animated cursor (dot + lagging ring); `src/index.css` globally sets `cursor: none !important` to support it. It self-disables on touch devices.
-
-### Deployment
-
-`vite.config.js` sets `base: '/portfolio/'` and `package.json`'s `homepage` field targets GitHub Pages — both currently point at placeholder values (`yourusername`) and need to be updated to the real GitHub username/repo before `npm run deploy` will publish to the correct path.
+- New DB change → new `db/migrations/NNNN_name.sql` (never edit applied ones; keep backward-compatible since migrations run at build).
+- New admin collection → add to `collections` in `server/validation.js` (+ migration) and a `CollectionManager` page.
+- New external script/image/API host → add it to the CSP in `vercel.json`.
+- New env var → `.env.example` and the README table; only `VITE_*` reaches the browser.

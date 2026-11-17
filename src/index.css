@@ -1,141 +1,37 @@
-/* ============================================================
-   Global CSS — Design Tokens, Resets, Utilities
-   ============================================================ */
+/* Public site global styles. Tokens/base live in styles/tokens.css. */
+@import './styles/tokens.css';
 
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
-
-:root {
-  /* Colors */
-  --bg-dark: #08080f;
-  --bg-dark-2: #0f0f1a;
-  --bg-card: #ffffff;
-  --accent: #FF3C00;
-  --accent-hover: #e03200;
-  --accent-light: rgba(255, 60, 0, 0.12);
-  --purple: #7B2FFF;
-  --orange: #FF8C00;
-  --text-primary: #ffffff;
-  --text-dark: #111111;
-  --text-muted: #888888;
-  --text-light: #cccccc;
-  --border: rgba(255, 255, 255, 0.08);
-  --card-border: rgba(0, 0, 0, 0.08);
-
-  /* Typography */
-  --font-display: 'Space Grotesk', sans-serif;
-  --font-body: 'Inter', sans-serif;
-
-  /* Spacing */
-  --section-pad: 7rem 0;
-  --container: 100%;
-
-  /* Transitions */
-  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Reset */
-*,
-*::before,
-*::after {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* The custom cursor adds this class only on devices with a fine, hovering pointer */
+html.has-custom-cursor,
+html.has-custom-cursor * {
   cursor: none !important;
 }
 
-html {
-  overflow-x: hidden;
-}
-
-/* Lenis drives scroll smoothing in JS — native smooth-scroll would fight it */
-html.lenis, html.lenis-smooth {
+/* Lenis drives smooth scrolling in JS — native smooth-scroll would fight it */
+html.lenis,
+html.lenis-smooth {
   scroll-behavior: auto !important;
 }
 
-body {
-  font-family: var(--font-body);
-  background: var(--bg-dark);
-  color: var(--text-primary);
-  line-height: 1.6;
-  overflow-x: hidden;
-}
-
-/* Container */
-.container {
-  max-width: var(--container);
-  margin: 0 auto;
-  padding: 0 3.5rem;
-}
-
-/* Section headings */
-.section-tag {
-  font-family: var(--font-display);
-  font-size: 2.8rem;
-  font-weight: 700;
-  color: var(--text-dark);
-  text-align: center;
-  margin-bottom: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-}
-
-.section-tag .plus {
-  color: var(--accent);
-  font-size: 1.7rem;
-}
-
 /* Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
+
+/* Sections alternate between the two background tones of the active theme */
+.section {
+  padding-block: var(--section-pad);
+  scroll-margin-top: var(--nav-h);
+  background: var(--bg);
 }
 
-::-webkit-scrollbar-track {
-  background: var(--bg-dark);
+.section--alt {
+  background: var(--bg-alt);
 }
 
-::-webkit-scrollbar-thumb {
-  background: var(--accent);
-  border-radius: 3px;
-}
-
-/* Selection */
-::selection {
-  background: var(--accent);
-  color: white;
-}
-
-/* Utility */
-.accent-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: var(--accent);
-  color: white;
-  padding: 0.85rem 2rem;
-  border-radius: 50px;
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 1.05rem;
-  text-decoration: none;
-  border: none;
-  cursor: pointer;
-  transition: var(--transition);
-  letter-spacing: 0.02em;
-}
-
-.accent-btn:hover {
-  background: var(--accent-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 12px 30px rgba(255, 60, 0, 0.35);
-}
-
-.accent-btn svg {
-  transition: transform 0.3s ease;
-}
-
-.accent-btn:hover svg {
-  transform: translateX(4px);
+/* Page (non-home) layout */
+.page {
+  padding-top: calc(var(--nav-h) + clamp(2.5rem, 6vw, 4.5rem));
+  padding-bottom: var(--section-pad);
+  min-height: 70vh;
 }
